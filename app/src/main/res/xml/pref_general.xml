@@ -1,12 +1,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-    <Preference
-        android:capitalize="words"
+
+
+    <com.example.administrator.dap_clone.CustomView.NumberPickerPreference
         android:key="number_thread_download"
-        android:maxLines="1"
-        android:singleLine="true"
         android:title="@string/pref_title_display_name"
-        android:summary="@string/pref_summary_display_name"/>
+        android:defaultValue="1"
+        />
 
 </PreferenceScreen>

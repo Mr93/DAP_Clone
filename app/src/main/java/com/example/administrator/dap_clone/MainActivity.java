@@ -1,8 +1,10 @@
 package com.example.administrator.dap_clone;
 
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,6 +12,8 @@ import android.view.MenuItem;
 import com.example.administrator.dap_clone.SettingsManager.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+	private static final String TAG = MainActivity.class.getSimpleName();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

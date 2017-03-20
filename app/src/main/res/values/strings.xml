@@ -13,7 +13,7 @@
     </string>
 
     <string name="pref_title_display_name">Number Thread Download</string>
-    <string name="pref_summary_display_name">8</string>
+    <string name="pref_summary_display_name">Number Thread Download Simultaneously</string>
     <string name="pref_default_display_name">John Smith</string>
 
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
