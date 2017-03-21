@@ -9,14 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/title_setting_number_thread"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/pref_title_number_thread_download"
-            android:textColor="@android:color/background_dark"
+            android:textColor="@android:color/black"
             android:textSize="20sp"
             android:textStyle="bold"/>
 
