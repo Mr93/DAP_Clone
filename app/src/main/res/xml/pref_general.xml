@@ -5,7 +5,7 @@
 
     <com.example.administrator.dap_clone.CustomView.NumberPickerPreference
         android:key="number_thread_download"
-        android:title="@string/pref_title_display_name"
+        android:title="@string/pref_title_number_thread_download"
         android:defaultValue="1"
         />
 
