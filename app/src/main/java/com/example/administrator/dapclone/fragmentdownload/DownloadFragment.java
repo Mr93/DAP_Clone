@@ -38,14 +38,16 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://download801.fshare.vn/dl/G9qjVM5uX8gjGoEDoc-Be7a6g1NIqvtgYdCmw9jvtcULNfQGS0RHH5mmb2AtMy-EoGGOQya3VQeyPWC3/Ky.Bang.Ha.5.Troi.sap-Ice.Age.Collision.Course-2016-Vietsub-1080p.mp4");
+		editText.setText("http://f9.stream.nixcdn.com/8108205ec8f3eccb98778c0cc2eb887e/58d1ffb9/PreNCT13/TuGiayPhutDau-HariWonTranThanh-4816253.mp4?t=1490157875066");
 		setupMVP();
 		return view;
 	}
 
 	private void setupMVP() {
-		providedPresenter = new DownloadPresenter();
-		providedPresenter.setView(this);
+		DownloadPresenter presenter = new DownloadPresenter(this);
+		DownloadModel model = new DownloadModel(presenter);
+		presenter.setModel(model);
+		providedPresenter = presenter;
 	}
 
 	@Override

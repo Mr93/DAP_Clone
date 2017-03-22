@@ -1,5 +1,7 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
+import com.example.administrator.dapclone.FileInfo;
+
 /**
  * Created by Administrator on 03/21/2017.
  */
@@ -22,6 +24,6 @@ public interface IDownloadFragment {
 	}
 
 	interface ProvidedModel {
-
+		void download(FileInfo fileInfo);
 	}
 }

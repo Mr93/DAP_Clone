@@ -1,6 +1,8 @@
 package com.example.administrator.dapclone.utils;
 
+import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 
 import com.example.administrator.dapclone.exception.NetworkException;
 
@@ -21,7 +23,8 @@ public class UrlValidate {
 			"mp4",
 			"avi",
 			"jpg",
-			"pdf"
+			"pdf",
+			"mp3"
 	};
 
 	public static boolean isValid(String url) throws NetworkException {
@@ -39,7 +42,7 @@ public class UrlValidate {
 	}
 
 	public static boolean isValidExtension(String stringUrl) {
-		String extension = getExtention(stringUrl);
+		String extension = getExtension(stringUrl);
 		for (String supportExtension : extensionList) {
 			if (supportExtension.equalsIgnoreCase(extension)) {
 				return true;
@@ -48,7 +51,7 @@ public class UrlValidate {
 		return false;
 	}
 
-	public static String getExtention(String url) {
+	public static String getExtension(String url) {
 		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
 		return extension;
 	}
@@ -64,4 +67,8 @@ public class UrlValidate {
 		return protocol;
 	}
 
+	public static String getFileNameFromUrl(String stringUrl) {
+		Log.d(TAG, "getFileNameFromUrl: " + URLUtil.guessFileName(stringUrl, null, null));
+		return URLUtil.guessFileName(stringUrl, null, null);
+	}
 }

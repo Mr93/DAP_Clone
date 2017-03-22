@@ -3,6 +3,8 @@ package com.example.administrator.dapclone.networkinterface;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 
 /**
@@ -11,5 +13,6 @@ import retrofit2.http.Url;
 
 public interface NetworkApi {
 	@GET
-	Call<ResponseBody> download(@Url String url);
+	@Streaming
+	Call<ResponseBody> download(@Url String url, @Header("Range") String rangeDownload);
 }

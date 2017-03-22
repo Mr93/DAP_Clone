@@ -17,6 +17,7 @@ public class BottomNavigationViewHelper {
 	//http://stackoverflow.com/questions/40176244/how-to-disable-bottomnavigationview-shift-mode
 	public static void disableShiftMode(BottomNavigationView view) {
 		BottomNavigationMenuView menuView = (BottomNavigationMenuView) view.getChildAt(0);
+
 		try {
 			Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
 			shiftingMode.setAccessible(true);
