@@ -1,5 +1,6 @@
 package com.example.administrator.dap_clone.MVP_FragmentDownload;
 
+import com.example.administrator.dap_clone.Exception.NetworkException;
 import com.example.administrator.dap_clone.Utils.UrlValidate;
 
 import retrofit2.http.Url;
@@ -16,6 +17,21 @@ public class PresenterDownload implements MVP_FragmentDownload.ProvidedPresenter
 
 	@Override
 	public void download(String url) {
-		UrlValidate.isValid(url);
+		try {
+			UrlValidate.isValid(url);
+		} catch (NetworkException e) {
+			requiredView.invalidUrl(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void setView(MVP_FragmentDownload.RequiredView view) {
+		requiredView = view;
+	}
+
+	@Override
+	public void setModel(MVP_FragmentDownload.ProvidedModel model) {
+		providedModel = model;
 	}
 }

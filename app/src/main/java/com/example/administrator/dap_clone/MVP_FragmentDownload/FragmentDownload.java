@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.example.administrator.dap_clone.R;
 
 public class FragmentDownload extends Fragment implements View.OnClickListener, MVP_FragmentDownload.RequiredView {
 
+	private static final String TAG = FragmentDownload.class.getSimpleName();
 	private EditText editText;
 	private Button button;
 	private TextView errorTextView;
@@ -38,18 +40,31 @@ public class FragmentDownload extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		providedPresenter = new PresenterDownload();
+		setupMVP();
 		return view;
+	}
+
+	private void setupMVP() {
+		providedPresenter = new PresenterDownload();
+		providedPresenter.setView(this);
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.button_download:
+				errorTextView.setVisibility(View.GONE);
 				providedPresenter.download(editText.getText().toString().trim());
 				break;
 			default:
 				break;
 		}
+	}
+
+	@Override
+	public void invalidUrl(String message) {
+		Log.d(TAG, "invalidUrl: ");
+		errorTextView.setText(message);
+		errorTextView.setVisibility(View.VISIBLE);
 	}
 }

@@ -6,11 +6,15 @@ package com.example.administrator.dap_clone.MVP_FragmentDownload;
 
 public interface MVP_FragmentDownload {
 	interface RequiredView {
-
+		void invalidUrl(String message);
 	}
 
 	interface ProvidedPresenter {
 		void download(String url);
+
+		void setView(RequiredView view);
+
+		void setModel(ProvidedModel model);
 	}
 
 	interface RequiredPresenter {
