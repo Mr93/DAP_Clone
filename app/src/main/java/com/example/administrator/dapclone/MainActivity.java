@@ -1,26 +1,13 @@
-package com.example.administrator.dap_clone;
+package com.example.administrator.dapclone;
 
-import android.content.Intent;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuBuilder;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.example.administrator.dap_clone.CustomView.BottomNavigationViewHelper;
-import com.example.administrator.dap_clone.SettingsManager.SettingsActivity;
-
-import retrofit2.Retrofit;
+import com.example.administrator.dapclone.view.BottomNavigationViewHelper;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
 

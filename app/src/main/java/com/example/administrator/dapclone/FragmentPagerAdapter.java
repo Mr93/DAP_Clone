@@ -1,16 +1,11 @@
-package com.example.administrator.dap_clone;
+package com.example.administrator.dapclone;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ImageSpan;
 import android.util.Log;
 
-import com.example.administrator.dap_clone.MVP_FragmentDownload.FragmentDownload;
+import com.example.administrator.dapclone.fragmentdownload.DownloadFragment;
 
 /**
  * Created by Administrator on 03/21/2017.
@@ -34,7 +29,7 @@ public class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAd
 		if (position == 3) {
 			fragment = new FragmentSettings();
 		} else if (position == 0) {
-			fragment = new FragmentDownload();
+			fragment = new DownloadFragment();
 		} else {
 			fragment = new FragmentSettings();
 		}

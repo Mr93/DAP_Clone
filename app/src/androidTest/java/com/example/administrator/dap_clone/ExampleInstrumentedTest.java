@@ -1,4 +1,4 @@
-package com.example.administrator.dap_clone;
+package com.example.administrator.dapclone;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
 		// Context of the app under test.
 		Context appContext = InstrumentationRegistry.getTargetContext();
 
-		assertEquals("com.example.administrator.dap_clone", appContext.getPackageName());
+		assertEquals("com.example.administrator.dapclone", appContext.getPackageName());
 	}
 }

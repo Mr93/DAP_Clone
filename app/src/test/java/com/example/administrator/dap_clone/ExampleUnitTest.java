@@ -1,4 +1,4 @@
-package com.example.administrator.dap_clone;
+package com.example.administrator.dapclone;
 
 import org.junit.Test;
 
