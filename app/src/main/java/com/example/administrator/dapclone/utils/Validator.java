@@ -6,6 +6,7 @@ import android.webkit.URLUtil;
 
 import com.example.administrator.dapclone.exception.NetworkException;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -13,9 +14,12 @@ import java.net.URL;
  * Created by Administrator on 03/21/2017.
  */
 
-public class UrlValidate {
+public class Validator {
 
-	private static final String TAG = UrlValidate.class.getSimpleName();
+	public static final String HTTP = "http";
+	public static final String HTTPS = "https";
+
+	private static final String TAG = Validator.class.getSimpleName();
 	private static String[] extensionList = {
 			"png",
 			"jpeg",
@@ -33,7 +37,9 @@ public class UrlValidate {
 			throw new NetworkException("url null");
 		} else if (url.equalsIgnoreCase("")) {
 			throw new NetworkException("url blank");
-		} else if (!isValidExtension(url)) {
+		} else if (!URLUtil.isValidUrl(url)) {
+			throw new NetworkException("url is invalid");
+		} else if (!isValidExtension(getExtension(url))) {
 			throw new NetworkException("unsupported extension");
 		} else {
 			valid = true;
@@ -41,8 +47,7 @@ public class UrlValidate {
 		return valid;
 	}
 
-	public static boolean isValidExtension(String stringUrl) {
-		String extension = getExtension(stringUrl);
+	public static boolean isValidExtension(String extension) {
 		for (String supportExtension : extensionList) {
 			if (supportExtension.equalsIgnoreCase(extension)) {
 				return true;
@@ -70,5 +75,14 @@ public class UrlValidate {
 	public static String getFileNameFromUrl(String stringUrl) {
 		Log.d(TAG, "getFileNameFromUrl: " + URLUtil.guessFileName(stringUrl, null, null));
 		return URLUtil.guessFileName(stringUrl, null, null);
+	}
+
+	public static String addProtocol(String stringUrl) {
+		String value = HTTP + "://" + stringUrl;
+		return value;
+	}
+
+	public static String getFileExtension(File file) {
+		return MimeTypeMap.getFileExtensionFromUrl(file.getName());
 	}
 }
