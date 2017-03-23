@@ -38,7 +38,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://f9.stream.nixcdn.com/8108205ec8f3eccb98778c0cc2eb887e/58d1ffb9/PreNCT13/TuGiayPhutDau-HariWonTranThanh-4816253.mp4?t=1490157875066");
+		editText.setText("http://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season19/season19_ep11_ss01.jpg");
 		setupMVP();
 		return view;
 	}

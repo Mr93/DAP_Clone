@@ -6,13 +6,9 @@ import android.util.Log;
 import com.example.administrator.dapclone.FileInfo;
 import com.example.administrator.dapclone.networkinterface.NetworkApi;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +29,9 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 	private static final String TAG = DownloadModel.class.getSimpleName();
 
 	private IDownloadFragment.RequiredPresenter presenter;
+
+	private int numberSubThread = 2;
+	private byte[] buffer = new byte[1024 * 8];
 
 	public DownloadModel(IDownloadFragment.RequiredPresenter presenter) {
 		this.presenter = presenter;
@@ -55,23 +54,22 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 					Log.d(TAG, "run: " + response);
 					Log.d(TAG, "run: " + response.headers());
 					Log.d(TAG, "run: " + response.code());
-
+					Log.d(TAG, "run md5 : " + response.header("Content-MD5"));
 					if (response.code() / 100 == 2) {
-						Log.d(TAG, "run: " + response.header("Content-Length"));
 						fileInfo.size = Long.valueOf(response.header("Content-Length"));
-						Log.d(TAG, "run: " + response.header("Accept-Ranges"));
+						fileInfo.path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + fileInfo
+								.name;
+						File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
+						filePath.mkdirs();
+						File file = new File(fileInfo.path);
+						if (file.exists()) {
+							Log.d(TAG, "downloadMultiThread: delete file " + file.delete());
+						}
 						if ("bytes".equalsIgnoreCase(response.header("Accept-Ranges"))) {
 							fileInfo.isMultiThread = true;
+							downloadMultiThread(client, fileInfo);
 						} else {
 							fileInfo.isMultiThread = false;
-						}
-						long partSize = fileInfo.size / 8;
-						long fileSize = fileInfo.size;
-						int position = 0;
-						while (fileSize > 0) {
-							performDownload(client, fileInfo, position);
-							fileSize = fileSize - (1024 & 16);
-							position = position + 1024 * 16;
 						}
 					}
 				} catch (IOException e) {
@@ -81,13 +79,25 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 		}).start();
 	}
 
-	private void performDownload(OkHttpClient client, final FileInfo fileInfo, final int position) {
+	private void downloadMultiThread(OkHttpClient client, FileInfo fileInfo) throws IOException {
+		long partSize = fileInfo.size / numberSubThread;
+		long fileSize = fileInfo.size;
+		int position = 0;
+		while (fileSize > 0) {
+			downloadAPart(client, fileInfo, position);
+			fileSize = fileSize - (partSize);
+			position = position + (int) partSize;
+		}
+	}
+
+	private void downloadAPart(final OkHttpClient client, final FileInfo fileInfo, final int startPosition) {
 		Retrofit retrofit = new Retrofit.Builder()
 				.baseUrl("https://google.com")
 				.client(client)
 				.build();
-		String range = "bytes=" + position + "-" + (position + (1024 * 16));
-		Log.d(TAG, "performDownload: " + range);
+		int endPoint;
+		endPoint = getEndPoint(fileInfo, startPosition);
+		String range = "bytes=" + startPosition + "-" + (endPoint - 1);
 		NetworkApi networkApi = retrofit.create(NetworkApi.class);
 		Call<ResponseBody> responseBodyCall = networkApi.download(fileInfo.url, range);
 		responseBodyCall.enqueue(new Callback<ResponseBody>() {
@@ -98,8 +108,7 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 					public void run() {
 						if (response.isSuccessful()) {
 							try {
-								Log.d(TAG, "run: " + response.headers().get("Content-Disposition"));
-								downloadFile(response.body(), fileInfo, position);
+								writeToFile(response.body(), fileInfo, startPosition);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -113,52 +122,31 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 			@Override
 			public void onFailure(Call<ResponseBody> call, Throwable t) {
 				Log.e(TAG, "onFailure: ", t);
+				downloadAPart(client, fileInfo, startPosition);
 			}
 		});
 	}
 
-	private void downloadFile(ResponseBody body, FileInfo fileInfo, int position) throws IOException {
-		fileInfo.path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + fileInfo
-				.name;
-		byte data[] = new byte[1024 * 16];
-		long fileSize = body.contentLength();
-		InputStream bis = new BufferedInputStream(body.byteStream(), data.length);
-		while (bis.read(data) != -1) {
-			Log.d(TAG, "downloadFile: here");
-			writeToFile(fileInfo, data, position);
+	private int getEndPoint(FileInfo fileInfo, int startPosition) {
+		int endPoint;
+		if ((fileInfo.size - startPosition) > (fileInfo.size / numberSubThread)) {
+			endPoint = startPosition + (int) fileInfo.size / numberSubThread;
+		} else {
+			endPoint = (int) fileInfo.size;
 		}
-		/*int count;
-		byte data[] = new byte[1024 * 16];
-		long fileSize = body.contentLength();
-		InputStream bis = new BufferedInputStream(body.byteStream(), 1024 * 8);
-		File outputFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileInfo.name);
-		OutputStream output = new FileOutputStream(outputFile);
-		long startTime = System.currentTimeMillis();
-		int timeCount = 1;
-		while ((count = bis.read(data)) != -1) {
-			Log.d(TAG, "downloadFile: here");
-			long currentTime = System.currentTimeMillis() - startTime;
-			if (currentTime > 1000 * timeCount) {
-				timeCount++;
-			}
-			output.write(data, 0, count);
-		}
-		output.flush();
-		output.close();
-		bis.close();*/
-		Log.d(TAG, "downloadFile: done");
+		return endPoint;
 	}
 
-	private void writeToFile(FileInfo fileInfo, byte[] data, int position) {
-		try {
-			RandomAccessFile randomAccessFile = new RandomAccessFile(fileInfo.path, "rw");
-			randomAccessFile.seek(position);
-			randomAccessFile.write(data);
-			randomAccessFile.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+	private void writeToFile(ResponseBody body, FileInfo fileInfo, int position) throws IOException {
+		InputStream inputStream = body.byteStream();
+		RandomAccessFile randomAccessFile = new RandomAccessFile(fileInfo.path, "rwd");
+		randomAccessFile.seek(position);
+		int count;
+		while ((count = inputStream.read(buffer)) > 0) {
+			randomAccessFile.write(buffer, 0, count);
 		}
+		inputStream.close();
+		randomAccessFile.close();
+		Log.d(TAG, "writeToFile: done ");
 	}
 }
