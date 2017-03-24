@@ -1,9 +1,12 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
+import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 
+import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.FileInfo;
+import com.example.administrator.dapclone.Service.NetworkActivityManager;
 import com.example.administrator.dapclone.networkinterface.NetworkApi;
 
 import java.io.File;
@@ -30,8 +33,6 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 
 	private IDownloadFragment.RequiredPresenter presenter;
 
-	private int numberSubThread = 2;
-	private byte[] buffer = new byte[1024 * 8];
 
 	public DownloadModel(IDownloadFragment.RequiredPresenter presenter) {
 		this.presenter = presenter;
@@ -51,26 +52,21 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 							.url(fileInfo.url)
 							.build();
 					Response response = client.newCall(request).execute();
-					Log.d(TAG, "run: " + response);
-					Log.d(TAG, "run: " + response.headers());
-					Log.d(TAG, "run: " + response.code());
-					Log.d(TAG, "run md5 : " + response.header("Content-MD5"));
 					if (response.code() / 100 == 2) {
-						fileInfo.size = Long.valueOf(response.header("Content-Length"));
 						fileInfo.path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + fileInfo
 								.name;
-						File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
-						filePath.mkdirs();
-						File file = new File(fileInfo.path);
-						if (file.exists()) {
-							Log.d(TAG, "downloadMultiThread: delete file " + file.delete());
+						if (response.header("Content-Length") != null) {
+							fileInfo.size = Long.valueOf(response.header("Content-Length"));
 						}
-						if ("bytes".equalsIgnoreCase(response.header("Accept-Ranges"))) {
+						if ("bytes".equalsIgnoreCase(response.header("Accept-Ranges")) && fileInfo.size != 0) {
 							fileInfo.isMultiThread = true;
-							downloadMultiThread(client, fileInfo);
 						} else {
 							fileInfo.isMultiThread = false;
 						}
+						Intent intent = new Intent(presenter.getContext(), NetworkActivityManager.class);
+						intent.putExtra(ConstantValues.FILE_INFO, fileInfo);
+						presenter.getContext().startService(intent);
+						//downloadMultiThread(client, fileInfo);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -79,74 +75,5 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 		}).start();
 	}
 
-	private void downloadMultiThread(OkHttpClient client, FileInfo fileInfo) throws IOException {
-		long partSize = fileInfo.size / numberSubThread;
-		long fileSize = fileInfo.size;
-		int position = 0;
-		while (fileSize > 0) {
-			downloadAPart(client, fileInfo, position);
-			fileSize = fileSize - (partSize);
-			position = position + (int) partSize;
-		}
-	}
 
-	private void downloadAPart(final OkHttpClient client, final FileInfo fileInfo, final int startPosition) {
-		Retrofit retrofit = new Retrofit.Builder()
-				.baseUrl("https://google.com")
-				.client(client)
-				.build();
-		int endPoint;
-		endPoint = getEndPoint(fileInfo, startPosition);
-		String range = "bytes=" + startPosition + "-" + (endPoint - 1);
-		NetworkApi networkApi = retrofit.create(NetworkApi.class);
-		Call<ResponseBody> responseBodyCall = networkApi.download(fileInfo.url, range);
-		responseBodyCall.enqueue(new Callback<ResponseBody>() {
-			@Override
-			public void onResponse(Call<ResponseBody> call, final retrofit2.Response<ResponseBody> response) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						if (response.isSuccessful()) {
-							try {
-								writeToFile(response.body(), fileInfo, startPosition);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						} else {
-							Log.d(TAG, "server contact failed");
-						}
-					}
-				}).start();
-			}
-
-			@Override
-			public void onFailure(Call<ResponseBody> call, Throwable t) {
-				Log.e(TAG, "onFailure: ", t);
-				downloadAPart(client, fileInfo, startPosition);
-			}
-		});
-	}
-
-	private int getEndPoint(FileInfo fileInfo, int startPosition) {
-		int endPoint;
-		if ((fileInfo.size - startPosition) > (fileInfo.size / numberSubThread)) {
-			endPoint = startPosition + (int) fileInfo.size / numberSubThread;
-		} else {
-			endPoint = (int) fileInfo.size;
-		}
-		return endPoint;
-	}
-
-	private void writeToFile(ResponseBody body, FileInfo fileInfo, int position) throws IOException {
-		InputStream inputStream = body.byteStream();
-		RandomAccessFile randomAccessFile = new RandomAccessFile(fileInfo.path, "rwd");
-		randomAccessFile.seek(position);
-		int count;
-		while ((count = inputStream.read(buffer)) > 0) {
-			randomAccessFile.write(buffer, 0, count);
-		}
-		inputStream.close();
-		randomAccessFile.close();
-		Log.d(TAG, "writeToFile: done ");
-	}
 }

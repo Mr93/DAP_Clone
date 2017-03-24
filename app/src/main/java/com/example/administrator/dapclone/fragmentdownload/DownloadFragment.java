@@ -1,5 +1,6 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,7 +39,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season19/season19_ep11_ss01.jpg");
+		editText.setText("http://f9.stream.nixcdn.com/0737d4542bf678778dd65803fddb213c/58d4a27e/PreNCT13/BeautyAndTheBeast-ArianaGrandeJohnLegend-4814984.mp4?t=1490330750339");
 		setupMVP();
 		return view;
 	}
@@ -67,5 +68,10 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		Log.d(TAG, "invalidUrl: ");
 		errorTextView.setText(message);
 		errorTextView.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public Context getFragmentContext() {
+		return getContext();
 	}
 }

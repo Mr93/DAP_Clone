@@ -28,7 +28,8 @@ public class Validator {
 			"avi",
 			"jpg",
 			"pdf",
-			"mp3"
+			"mp3",
+			"txt"
 	};
 
 	public static boolean isValid(String url) throws NetworkException {
@@ -58,6 +59,7 @@ public class Validator {
 
 	public static String getExtension(String url) {
 		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+		Log.d(TAG, "getExtension: " + extension);
 		return extension;
 	}
 

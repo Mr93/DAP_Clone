@@ -14,5 +14,5 @@ import retrofit2.http.Url;
 public interface NetworkApi {
 	@GET
 	@Streaming
-	Call<ResponseBody> download(@Url String url, @Header("Range") String rangeDownload);
+	Call<ResponseBody> download(@Url String url, @Header("Range") String rangeDownload, @Header("Connection") String connection);
 }

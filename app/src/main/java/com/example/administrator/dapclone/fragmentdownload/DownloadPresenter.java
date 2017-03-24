@@ -1,9 +1,12 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 
 import com.example.administrator.dapclone.FileInfo;
+import com.example.administrator.dapclone.Service.NetworkActivityManager;
 import com.example.administrator.dapclone.exception.NetworkException;
 import com.example.administrator.dapclone.utils.Validator;
 
@@ -51,5 +54,10 @@ public class DownloadPresenter implements IDownloadFragment.ProvidedPresenter, I
 	@Override
 	public void setModel(IDownloadFragment.ProvidedModel model) {
 		providedModel = model;
+	}
+
+	@Override
+	public Context getContext() {
+		return requiredView.getFragmentContext();
 	}
 }

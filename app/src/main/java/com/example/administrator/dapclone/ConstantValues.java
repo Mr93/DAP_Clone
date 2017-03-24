@@ -7,5 +7,5 @@ package com.example.administrator.dapclone;
 public class ConstantValues {
 	public final static String SETTING_NUMBER_THREAD_DOWNLOAD = "number_thread_download";
 	public final static int DEFAULT_NUMBER_THREAD_DOWNLOAD = 8;
-
+	public final static String FILE_INFO = "file_info";
 }
