@@ -17,7 +17,7 @@ public class TaskInfo implements Parcelable {
 	public boolean isMultiThread = true;
 	public String path = "";
 	public boolean isDownload = true;
-	public int taskId = 0;
+	public int taskId = -1;
 
 
 	@Override

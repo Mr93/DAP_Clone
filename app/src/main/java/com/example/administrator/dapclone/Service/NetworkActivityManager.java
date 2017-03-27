@@ -33,10 +33,14 @@ public class NetworkActivityManager extends Service {
 
 	private int numberSubThread = 8;
 	private byte[] buffer = new byte[4096];
+	private TaskManager taskManager;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		try {
+		taskManager = TaskManager.getInstance();
+		if (!taskManager.isRunning) {
+			taskManager.start();
+		}
 			if (intent != null) {
 				TaskInfo taskInfo = (TaskInfo) intent.getParcelableExtra(ConstantValues.FILE_INFO);
 				File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
@@ -45,17 +49,16 @@ public class NetworkActivityManager extends Service {
 				if (file.exists()) {
 					Log.d(TAG, "downloadMultiThread: delete file " + file.delete());
 				}
-				OkHttpClient client = new OkHttpClient.Builder()
+				taskManager.addTask(taskInfo);
+				/*OkHttpClient client = new OkHttpClient.Builder()
 						.connectTimeout(5, TimeUnit.MINUTES)
 						.readTimeout(5, TimeUnit.MINUTES)
 						.build();
-				downloadMultiThread(client, taskInfo);
+				downloadMultiThread(client, taskInfo);*/
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return START_STICKY;
 	}
+
 
 	@Nullable
 	@Override

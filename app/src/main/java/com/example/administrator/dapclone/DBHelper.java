@@ -45,9 +45,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
-	public synchronized static DBHelper getInstance(Context context) {
+	public synchronized static DBHelper getInstance() {
 		if (instance == null) {
-			instance = new DBHelper(context.getApplicationContext());
+			instance = new DBHelper(MyApplication.getAppContext());
 		}
 		return instance;
 	}
@@ -66,34 +66,67 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	public synchronized int insertTask(TaskInfo taskInfo) {
 		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-		ContentValues contentValues = getContentValues(taskInfo);
+		ContentValues contentValues = getTaskValues(taskInfo);
 		return (int) sqLiteDatabase.insert(TASK_TABLE_NAME, null, contentValues);
+	}
+
+	public synchronized int insertSubTask(SubTaskInfo subTaskInfo, int taskId) {
+		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+		ContentValues contentValues = getSubTaskValues(subTaskInfo, taskId);
+		return (int) sqLiteDatabase.insert(SUB_TASK_TABLE_NAME, null, contentValues);
 	}
 
 	public synchronized int updateTask(TaskInfo taskInfo) {
 		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-		ContentValues contentValues = getContentValues(taskInfo);
+		ContentValues contentValues = getTaskValues(taskInfo);
 		contentValues.put(TASK_ID, taskInfo.taskId);
 		return sqLiteDatabase.update(TASK_TABLE_NAME, contentValues, TASK_ID + "  = ? ", new String[]{Integer.toString(taskInfo
 				.taskId)});
 	}
 
+	public synchronized int updateSubTask(SubTaskInfo subTaskInfo, int taskId) {
+		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+		ContentValues contentValues = getSubTaskValues(subTaskInfo, taskId);
+		contentValues.put(SUB_TASK_ID, subTaskInfo.subTaskId);
+		return sqLiteDatabase.update(SUB_TASK_TABLE_NAME, contentValues, SUB_TASK_ID + "  = ? ", new String[]{Integer.toString(subTaskInfo
+				.subTaskId)});
+	}
+
 	public synchronized int deleteTaskById(int id) {
 		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 		Log.d(TAG, "deleteNote: " + id);
+		deleteSubTaskByTaskId(id);
 		return sqLiteDatabase.delete(TASK_TABLE_NAME, TASK_ID + "  = ? ", new String[]{Integer.toString(id)});
 	}
 
-	public synchronized int deleteTaskByStatus(String status) {
+	public synchronized int deleteSubTaskByTaskId(int taskId) {
+		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+		return sqLiteDatabase.delete(SUB_TASK_TABLE_NAME, TASK_ID + "  = ? ", new String[]{Integer.toString(taskId)});
+	}
+
+	/*public synchronized int deleteTaskByStatus(String status) {
 		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 		Log.d(TAG, "deleteNote: " + status);
-		return sqLiteDatabase.delete(TASK_TABLE_NAME, STATUS + "  = ? ", new String[]{status});
-	}
+		return sqLiteDatabase.delete(TASK_TABLE_NAME, STATUS + "  like ? ", new String[]{status});
+	}*/
 
 	public ArrayList<TaskInfo> getAllTask() {
 		ArrayList<TaskInfo> arrayList = new ArrayList<>();
 		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 		Cursor data = sqLiteDatabase.rawQuery("select * from " + TASK_TABLE_NAME, null);
+		data.moveToFirst();
+		while (data.isAfterLast() == false) {
+			TaskInfo taskInfo = getTaskInfo(data);
+			arrayList.add(taskInfo);
+			data.moveToNext();
+		}
+		return arrayList;
+	}
+
+	public ArrayList<SubTaskInfo> getAllSubTask(int taskId) {
+		ArrayList<SubTaskInfo> arrayList = new ArrayList<>();
+		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+		Cursor data = sqLiteDatabase.rawQuery("select * from " + SUB_TASK_TABLE_NAME + " where " + TASK_ID + " = " + taskId + "", null);
 		data.moveToFirst();
 		while (data.isAfterLast() == false) {
 			TaskInfo taskInfo = getTaskInfo(data);
@@ -116,7 +149,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public ArrayList<TaskInfo> getTasksByStatus(String status) {
 		ArrayList<TaskInfo> arrayList = new ArrayList<>();
 		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-		Cursor data = sqLiteDatabase.rawQuery("select * from " + TASK_TABLE_NAME + " where " + STATUS + " = " + status + "",
+		Cursor data = sqLiteDatabase.rawQuery("select * from " + TASK_TABLE_NAME + " where " + STATUS + " like '" + status + "'",
 				null);
 		data.moveToFirst();
 		while (data.isAfterLast() == false) {
@@ -144,7 +177,17 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	@NonNull
-	private ContentValues getContentValues(TaskInfo taskInfo) {
+	private SubTaskInfo getSubTaskInfo(Cursor data) {
+		SubTaskInfo subTaskInfo = new SubTaskInfo();
+		subTaskInfo.subTaskId = data.getInt(data.getColumnIndex(SUB_TASK_ID));
+		subTaskInfo.start = data.getLong(data.getColumnIndex(START_BYTE));
+		subTaskInfo.end = data.getLong(data.getColumnIndex(END_BYTE));
+		subTaskInfo.status = data.getString(data.getColumnIndex(STATUS));
+		return subTaskInfo;
+	}
+
+	@NonNull
+	private ContentValues getTaskValues(TaskInfo taskInfo) {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(TASK_NAME, taskInfo.name);
 		contentValues.put(TASK_URL, taskInfo.url);
@@ -154,6 +197,16 @@ public class DBHelper extends SQLiteOpenHelper {
 		contentValues.put(PROCESSED_SIZE, taskInfo.processedSize);
 		contentValues.put(STATUS, taskInfo.status);
 		contentValues.put(IS_MULTI_THREAD, taskInfo.isMultiThread ? 1 : 0);
+		return contentValues;
+	}
+
+	@NonNull
+	private ContentValues getSubTaskValues(SubTaskInfo subTaskInfo, int taskId) {
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(TASK_ID, taskId);
+		contentValues.put(START_BYTE, subTaskInfo.start);
+		contentValues.put(END_BYTE, subTaskInfo.end);
+		contentValues.put(STATUS, subTaskInfo.status);
 		return contentValues;
 	}
 }
