@@ -1,16 +1,10 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Environment;
-import android.util.Log;
 
-import com.example.administrator.dapclone.FileInfo;
-import com.example.administrator.dapclone.Service.NetworkActivityManager;
+import com.example.administrator.dapclone.TaskInfo;
 import com.example.administrator.dapclone.exception.NetworkException;
 import com.example.administrator.dapclone.utils.Validator;
-
-import java.io.File;
 
 /**
  * Created by Administrator on 03/21/2017.
@@ -34,7 +28,7 @@ public class DownloadPresenter implements IDownloadFragment.ProvidedPresenter, I
 				url = Validator.addProtocol(url);
 			}
 			if (Validator.isValid(url)) {
-				FileInfo downloadFile = new FileInfo();
+				TaskInfo downloadFile = new TaskInfo();
 				downloadFile.name = Validator.getFileNameFromUrl(url);
 				downloadFile.extension = Validator.getExtension(url);
 				downloadFile.url = url;

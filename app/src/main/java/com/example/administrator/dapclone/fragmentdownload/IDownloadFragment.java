@@ -2,7 +2,7 @@ package com.example.administrator.dapclone.fragmentdownload;
 
 import android.content.Context;
 
-import com.example.administrator.dapclone.FileInfo;
+import com.example.administrator.dapclone.TaskInfo;
 
 /**
  * Created by Administrator on 03/21/2017.
@@ -28,6 +28,6 @@ public interface IDownloadFragment {
 	}
 
 	interface ProvidedModel {
-		void download(FileInfo fileInfo);
+		void download(TaskInfo taskInfo);
 	}
 }

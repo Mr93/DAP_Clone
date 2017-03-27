@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.administrator.dapclone.DBHelper;
 import com.example.administrator.dapclone.R;
 
 /**
@@ -39,9 +40,15 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://f9.stream.nixcdn.com/0737d4542bf678778dd65803fddb213c/58d4a27e/PreNCT13/BeautyAndTheBeast-ArianaGrandeJohnLegend-4814984.mp4?t=1490330750339");
+		editText.setText("http://assets.pokemon.com/assets//cms2-nb-no/img/trading-card-game/_tiles/sun-moon/sm01_launch_169-en.jpg");
 		setupMVP();
 		return view;
+	}
+
+
+	@Override
+	public void onStart() {
+		super.onStart();
 	}
 
 	private void setupMVP() {

@@ -7,15 +7,17 @@ import android.os.Parcelable;
  * Created by Administrator on 03/22/2017.
  */
 
-public class FileInfo implements Parcelable {
+public class TaskInfo implements Parcelable {
 	public String url = "";
 	public String name = "";
 	public String extension = "";
 	public long size = 0;
-	public int downloadedSize = 0;
+	public int processedSize = 0;
 	public String status = "pending";
 	public boolean isMultiThread = true;
 	public String path = "";
+	public boolean isDownload = true;
+	public int taskId = 0;
 
 
 	@Override
@@ -29,35 +31,35 @@ public class FileInfo implements Parcelable {
 		dest.writeString(this.name);
 		dest.writeString(this.extension);
 		dest.writeLong(this.size);
-		dest.writeInt(this.downloadedSize);
+		dest.writeInt(this.processedSize);
 		dest.writeString(this.status);
 		dest.writeByte(this.isMultiThread ? (byte) 1 : (byte) 0);
 		dest.writeString(this.path);
 	}
 
-	public FileInfo() {
+	public TaskInfo() {
 	}
 
-	protected FileInfo(Parcel in) {
+	protected TaskInfo(Parcel in) {
 		this.url = in.readString();
 		this.name = in.readString();
 		this.extension = in.readString();
 		this.size = in.readLong();
-		this.downloadedSize = in.readInt();
+		this.processedSize = in.readInt();
 		this.status = in.readString();
 		this.isMultiThread = in.readByte() != 0;
 		this.path = in.readString();
 	}
 
-	public static final Creator<FileInfo> CREATOR = new Creator<FileInfo>() {
+	public static final Creator<TaskInfo> CREATOR = new Creator<TaskInfo>() {
 		@Override
-		public FileInfo createFromParcel(Parcel source) {
-			return new FileInfo(source);
+		public TaskInfo createFromParcel(Parcel source) {
+			return new TaskInfo(source);
 		}
 
 		@Override
-		public FileInfo[] newArray(int size) {
-			return new FileInfo[size];
+		public TaskInfo[] newArray(int size) {
+			return new TaskInfo[size];
 		}
 	};
 }
