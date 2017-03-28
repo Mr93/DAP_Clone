@@ -1,5 +1,6 @@
 package com.example.administrator.dapclone.Service;
 
+import android.app.Service;
 import android.util.Log;
 
 import com.example.administrator.dapclone.ConstantValues;
@@ -19,10 +20,12 @@ public class TaskManager extends Thread {
 	private static final String TAG = TaskManager.class.getSimpleName();
 	BlockingQueue<Task> downloadingTask, pendingTask, errorTask;
 	private static TaskManager instance;
-	public boolean isRunning = false;
+	private boolean isRunning = false;
 
 	private TaskManager() {
-		setUpQueues();
+		downloadingTask = new LinkedBlockingQueue<>();
+		pendingTask = new LinkedBlockingQueue<>();
+		errorTask = new LinkedBlockingQueue<>();
 	}
 
 	public static TaskManager getInstance() {
@@ -41,7 +44,6 @@ public class TaskManager extends Thread {
 
 	//get queue from DB
 	private void getDownloadingQueue() {
-		downloadingTask = new LinkedBlockingQueue<>();
 		ArrayList<TaskInfo> taskInfoList = DBHelper.getInstance().getTasksByStatus(ConstantValues.STATUS_DOWNLOADING);
 		for (int i = 0; i < taskInfoList.size(); i++) {
 			downloadingTask.offer(new Task(taskInfoList.get(i), this));
@@ -49,10 +51,10 @@ public class TaskManager extends Thread {
 	}
 
 	private void getPendingQueue() {
-		pendingTask = new LinkedBlockingQueue<>();
 		ArrayList<TaskInfo> taskInfoList = DBHelper.getInstance().getTasksByStatus(ConstantValues.STATUS_PENDING);
 		for (int i = 0; i < taskInfoList.size(); i++) {
-			if (SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD) > downloadingTask.size()) {
+			if (SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD) > downloadingTask
+					.size()) {
 				Task task = new Task(taskInfoList.get(i), this);
 				task.getTaskInfo().status = ConstantValues.STATUS_DOWNLOADING;
 				downloadingTask.offer(task);
@@ -64,7 +66,6 @@ public class TaskManager extends Thread {
 	}
 
 	private void getErrorQueue() {
-		errorTask = new LinkedBlockingQueue<>();
 		ArrayList<TaskInfo> taskInfoList = DBHelper.getInstance().getTasksByStatus(ConstantValues.STATUS_ERROR);
 		for (int i = 0; i < taskInfoList.size(); i++) {
 			errorTask.offer(new Task(taskInfoList.get(i), this));
@@ -72,9 +73,11 @@ public class TaskManager extends Thread {
 	}
 
 	private void updateFromPendingToDownloading() {
-		int offset = SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD) - downloadingTask.size();
+		int offset = SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD) -
+				downloadingTask.size();
 		Log.d(TAG, "updateFromPendingToDownloading: " + offset);
-		Log.d(TAG, "updateFromPendingToDownloading: " + SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD));
+		Log.d(TAG, "updateFromPendingToDownloading: " + SettingUtils.getIntSettings(ConstantValues
+				.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD));
 		Log.d(TAG, "updateFromPendingToDownloading: " + downloadingTask.size());
 		for (int i = 0; i < offset; i++) {
 			Task task = pendingTask.poll();
@@ -88,36 +91,55 @@ public class TaskManager extends Thread {
 	}
 
 	@Override
+	public synchronized void start() {
+		super.start();
+		isRunning = true;
+	}
+
+	@Override
 	public void run() {
 		Log.d(TAG, "run: start task manager");
-		isRunning = true;
+		setUpQueues();
 		try {
 			while (isRunning) {
 				updateFromPendingToDownloading();
+				Log.d(TAG, "run taskCompleted: " + downloadingTask.size());
 				for (Task task : downloadingTask) {
-					if (!task.isRunning()) {
-						task.setRunning(true);
+					Log.d(TAG, "run: " + task.getState());
+					if (task.getState() == State.NEW) {
 						task.start();
 					}
 				}
-				Thread.sleep(10000);
+				if (downloadingTask.size() == 0) {
+					isRunning = false;
+					synchronized (NetworkActivityManager.monitor) {
+						try {
+							NetworkActivityManager.monitor.wait();
+						} catch (InterruptedException e) {
+
+						}
+					}
+				} else {
+					Thread.sleep(1000);
+				}
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
+
 	public void addTask(TaskInfo taskInfo) {
 		Task task = new Task(taskInfo, this);
 		if (checkContain(taskInfo, errorTask)) {
 			errorTask.remove(task);
-			if (downloadingTask.size() >= SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD)) {
+			if (downloadingTask.size() >= SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD)) {
 				pendingTask.offer(task);
 			} else {
 				downloadingTask.offer(task);
 			}
 		} else if (!checkContain(taskInfo, downloadingTask) && !checkContain(taskInfo, pendingTask)) {
-			if (downloadingTask.size() >= SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD)) {
+			if (downloadingTask.size() >= SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD)) {
 				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
 				pendingTask.offer(task);
 			} else {
@@ -125,6 +147,9 @@ public class TaskManager extends Thread {
 				downloadingTask.offer(task);
 			}
 		}
+		Log.d(TAG, "addTask: " + downloadingTask.size());
+		Log.d(TAG, "addTask: " + pendingTask.size());
+		Log.d(TAG, "addTask: " + errorTask.size());
 	}
 
 	public boolean checkContain(TaskInfo taskInfo, BlockingQueue<Task> tasks) {
@@ -138,15 +163,21 @@ public class TaskManager extends Thread {
 		return false;
 	}
 
-	public void taskCompleted(Task task) {
+	public synchronized void taskCompleted(Task task) {
 		Log.d(TAG, "taskCompleted: " + downloadingTask.remove(task));
+		Log.d(TAG, "taskCompleted: " + downloadingTask.size());
 		task.getTaskInfo().status = ConstantValues.STATUS_COMPLETED;
 		DBHelper.getInstance().updateTask(task.getTaskInfo());
+		DBHelper.getInstance().deleteSubTaskByTaskId(task.getTaskInfo().taskId);
 		updateFromPendingToDownloading();
 	}
 
-	public void taskErrored(Task task) {
+	public synchronized void taskError(Task task) {
 		Log.d(TAG, "taskCompleted: " + downloadingTask.remove(task));
 		errorTask.offer(task);
+	}
+
+	public void setRunning(boolean running) {
+		isRunning = running;
 	}
 }

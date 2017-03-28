@@ -9,4 +9,5 @@ public class SubTaskInfo {
 	public long start = 0;
 	public long end = 0;
 	public String status = "";
+	public int taskId = -1;
 }

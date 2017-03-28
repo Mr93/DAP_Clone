@@ -1,7 +1,9 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.example.administrator.dapclone.DBHelper;
 import com.example.administrator.dapclone.TaskInfo;
 import com.example.administrator.dapclone.exception.NetworkException;
 import com.example.administrator.dapclone.utils.Validator;
@@ -28,11 +30,15 @@ public class DownloadPresenter implements IDownloadFragment.ProvidedPresenter, I
 				url = Validator.addProtocol(url);
 			}
 			if (Validator.isValid(url)) {
-				TaskInfo downloadFile = new TaskInfo();
-				downloadFile.name = Validator.getFileNameFromUrl(url);
-				downloadFile.extension = Validator.getExtension(url);
-				downloadFile.url = url;
-				providedModel.download(downloadFile);
+				TaskInfo taskInfo = new TaskInfo();
+				taskInfo.name = Validator.getFileNameFromUrl(url);
+				taskInfo.extension = Validator.getExtension(url);
+				taskInfo.url = url;
+				if (!DBHelper.getInstance().checkTaskDownloadExisted(taskInfo)) {
+					taskInfo.taskId = DBHelper.getInstance().getTaskIdByNameAndUrl(taskInfo);
+					Log.d(TAG, "download: " + taskInfo.taskId);
+					providedModel.download(taskInfo);
+				}
 			}
 		} catch (NetworkException e) {
 			requiredView.invalidUrl(e.getMessage());

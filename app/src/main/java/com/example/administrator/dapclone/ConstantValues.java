@@ -12,6 +12,4 @@ public class ConstantValues {
 	public final static String STATUS_PENDING = "pending";
 	public final static String STATUS_ERROR = "error";
 	public final static String STATUS_COMPLETED = "completed";
-
-
 }

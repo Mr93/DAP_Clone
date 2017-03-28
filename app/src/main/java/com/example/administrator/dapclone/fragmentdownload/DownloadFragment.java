@@ -40,7 +40,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://assets.pokemon.com/assets//cms2-nb-no/img/trading-card-game/_tiles/sun-moon/sm01_launch_169-en.jpg");
+		editText.setText("http://s71.stream.nixcdn.com/tvc/oppo_1603_15s.mp4");
 		setupMVP();
 		return view;
 	}
@@ -64,6 +64,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 			case R.id.button_download:
 				errorTextView.setVisibility(View.GONE);
 				providedPresenter.download(editText.getText().toString().trim());
+				editText.setText("http://f9.stream.nixcdn.com/e6b05beebf170c3951c85778d9ea06a7/58da098a/PreNCT13/Giants-TakeThat-4853929.mp4?t=1490684397959");
 				break;
 			default:
 				break;

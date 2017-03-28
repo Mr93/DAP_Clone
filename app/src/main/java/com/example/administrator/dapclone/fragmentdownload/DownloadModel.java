@@ -2,6 +2,7 @@ package com.example.administrator.dapclone.fragmentdownload;
 
 import android.content.Intent;
 import android.os.Environment;
+import android.util.Log;
 
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.TaskInfo;
@@ -35,6 +36,7 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 			@Override
 			public void run() {
 				try {
+					Log.d(TAG, "run: " + taskInfo.taskId);
 					OkHttpClient client = new OkHttpClient.Builder()
 							.connectTimeout(5, TimeUnit.MINUTES)
 							.readTimeout(5, TimeUnit.MINUTES)
@@ -56,10 +58,12 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 						}
 						Intent intent = new Intent(presenter.getContext(), NetworkActivityManager.class);
 						intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
+						Log.d(TAG, "run: " + taskInfo.taskId);
 						presenter.getContext().startService(intent);
 						//downloadMultiThread(client, taskInfo);
 					}
 				} catch (IOException e) {
+					Log.d(TAG, "run: " + e);
 					e.printStackTrace();
 				}
 			}

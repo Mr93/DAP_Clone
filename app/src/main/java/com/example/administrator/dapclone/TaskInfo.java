@@ -20,6 +20,9 @@ public class TaskInfo implements Parcelable {
 	public int taskId = -1;
 
 
+	public TaskInfo() {
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -35,9 +38,8 @@ public class TaskInfo implements Parcelable {
 		dest.writeString(this.status);
 		dest.writeByte(this.isMultiThread ? (byte) 1 : (byte) 0);
 		dest.writeString(this.path);
-	}
-
-	public TaskInfo() {
+		dest.writeByte(this.isDownload ? (byte) 1 : (byte) 0);
+		dest.writeInt(this.taskId);
 	}
 
 	protected TaskInfo(Parcel in) {
@@ -49,6 +51,8 @@ public class TaskInfo implements Parcelable {
 		this.status = in.readString();
 		this.isMultiThread = in.readByte() != 0;
 		this.path = in.readString();
+		this.isDownload = in.readByte() != 0;
+		this.taskId = in.readInt();
 	}
 
 	public static final Creator<TaskInfo> CREATOR = new Creator<TaskInfo>() {

@@ -129,8 +129,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		Cursor data = sqLiteDatabase.rawQuery("select * from " + SUB_TASK_TABLE_NAME + " where " + TASK_ID + " = " + taskId + "", null);
 		data.moveToFirst();
 		while (data.isAfterLast() == false) {
-			TaskInfo taskInfo = getTaskInfo(data);
-			arrayList.add(taskInfo);
+			SubTaskInfo subTaskInfo = getSubTaskInfo(data);
+			arrayList.add(subTaskInfo);
 			data.moveToNext();
 		}
 		return arrayList;
@@ -160,6 +160,38 @@ public class DBHelper extends SQLiteOpenHelper {
 		return arrayList;
 	}
 
+	public boolean checkTaskDownloadExisted(TaskInfo taskInfo) {
+		ArrayList<SubTaskInfo> arrayList = new ArrayList<>();
+		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+		Cursor data = sqLiteDatabase.rawQuery("select * from " + TASK_TABLE_NAME + " where " + TASK_NAME + " like '" + taskInfo.name
+						+ "' and " + TASK_URL + " like '" + taskInfo.url + "'",
+				null);
+		data.moveToFirst();
+		if (data == null || !data.moveToFirst()) {
+			return false;
+		}
+		if (ConstantValues.STATUS_COMPLETED.equalsIgnoreCase(data.getString(data.getColumnIndex(STATUS))) ||
+				ConstantValues.STATUS_ERROR.equalsIgnoreCase(data.getString(data.getColumnIndex(STATUS)))) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public int getTaskIdByNameAndUrl(TaskInfo taskInfo) {
+		ArrayList<SubTaskInfo> arrayList = new ArrayList<>();
+		SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+		Cursor data = sqLiteDatabase.rawQuery("select * from " + TASK_TABLE_NAME + " where " + TASK_NAME + " like '" + taskInfo.name
+						+ "' and " + TASK_URL + " like '" + taskInfo.url + "'",
+				null);
+		data.moveToFirst();
+		if (data == null || !data.moveToFirst()) {
+			return -1;
+		} else {
+			return data.getInt(data.getColumnIndex(TASK_ID));
+		}
+	}
+
 	@NonNull
 	private TaskInfo getTaskInfo(Cursor data) {
 		TaskInfo taskInfo = new TaskInfo();
@@ -183,6 +215,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		subTaskInfo.start = data.getLong(data.getColumnIndex(START_BYTE));
 		subTaskInfo.end = data.getLong(data.getColumnIndex(END_BYTE));
 		subTaskInfo.status = data.getString(data.getColumnIndex(STATUS));
+		subTaskInfo.taskId = data.getInt(data.getColumnIndex(TASK_ID));
 		return subTaskInfo;
 	}
 

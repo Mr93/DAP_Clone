@@ -9,8 +9,8 @@ import android.preference.PreferenceManager;
 
 public class SettingUtils {
 
-	public static int getIntSettings(String key) {
+	public static int getIntSettings(String key, int defaultValue) {
 		return PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext()).getInt
-				(key, 0);
+				(key, defaultValue);
 	}
 }
