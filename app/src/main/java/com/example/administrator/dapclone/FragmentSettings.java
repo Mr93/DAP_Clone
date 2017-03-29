@@ -35,7 +35,7 @@ public class FragmentSettings extends android.support.v4.app.Fragment implements
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_settings, container, false);
+		View view = inflater.inflate(R.layout.settings_fragment, container, false);
 		settingNumberThread = (LinearLayout) view.findViewById(R.id.setting_number_thread);
 		summarySettingNumberThread = (TextView) view.findViewById(R.id.summary_setting_number_thread);
 		settingNumberThread.setOnClickListener(this);

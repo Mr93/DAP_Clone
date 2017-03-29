@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.administrator.dapclone.DBHelper;
 import com.example.administrator.dapclone.R;
 
 /**
@@ -35,7 +34,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_download, container, false);
+		View view = inflater.inflate(R.layout.download_fragment, container, false);
 		editText = (EditText) view.findViewById(R.id.edit_text_download);
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);

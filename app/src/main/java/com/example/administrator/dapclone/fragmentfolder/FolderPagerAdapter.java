@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.example.administrator.dapclone.FragmentSettings;
 import com.example.administrator.dapclone.fragmentdownload.DownloadFragment;
+import com.example.administrator.dapclone.fragmentfolder.folderdownload.FolderDownloadFragment;
 
 /**
  * Created by Administrator on 03/28/2017.
@@ -24,7 +25,7 @@ public class FolderPagerAdapter extends FragmentStatePagerAdapter {
 		Fragment fragment;
 		switch (position) {
 			case 0:
-				fragment = new FragmentSettings();
+				fragment = new FolderDownloadFragment();
 				break;
 			case 1:
 				fragment = new DownloadFragment();

@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.administrator.dapclone.R;
-import com.example.administrator.dapclone.fragmentdownload.DownloadFragment;
 
 /**
  * Created by Administrator on 03/28/2017.
@@ -31,7 +30,7 @@ public class FolderFragment extends Fragment {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_folder, container, false);
+		View view = inflater.inflate(R.layout.folder_fragment, container, false);
 		tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
 		tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 		viewPager = (ViewPager) view.findViewById(R.id.viewpager_folder);
