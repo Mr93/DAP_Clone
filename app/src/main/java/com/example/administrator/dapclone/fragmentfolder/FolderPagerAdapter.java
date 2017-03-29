@@ -40,4 +40,17 @@ public class FolderPagerAdapter extends FragmentStatePagerAdapter {
 	public int getCount() {
 		return numberTab;
 	}
+
+
+	@Override
+	public CharSequence getPageTitle(int position) {
+		switch (position) {
+			case 0:
+				return "Download";
+			case 1:
+				return "Upload";
+			default:
+				return "Download";
+		}
+	}
 }

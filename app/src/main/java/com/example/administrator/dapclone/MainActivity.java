@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 		bottomNavigationView.setOnNavigationItemSelectedListener(this);
 		BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
 		viewPager.addOnPageChangeListener(this);
+
 	}
 
 	@Override

@@ -21,6 +21,7 @@ public class FolderFragment extends Fragment {
 	private ViewPager viewPager;
 	private TabLayout tabLayout;
 	private FolderPagerAdapter folderPagerAdapter;
+	private static final int TAB_COUNT = 2;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,13 +33,11 @@ public class FolderFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_folder, container, false);
 		tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
-		tabLayout.addTab(tabLayout.newTab().setText("Download"));
-		tabLayout.addTab(tabLayout.newTab().setText("Upload"));
 		tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 		viewPager = (ViewPager) view.findViewById(R.id.viewpager_folder);
-		folderPagerAdapter = new FolderPagerAdapter(getActivity().getSupportFragmentManager(), tabLayout.getTabCount());
+		folderPagerAdapter = new FolderPagerAdapter(getChildFragmentManager(), TAB_COUNT);
 		viewPager.setAdapter(folderPagerAdapter);
-
+		tabLayout.setupWithViewPager(viewPager);
 		return view;
 	}
 }
