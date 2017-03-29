@@ -63,7 +63,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 			case R.id.button_download:
 				errorTextView.setVisibility(View.GONE);
 				providedPresenter.download(editText.getText().toString().trim());
-				editText.setText("http://f9.stream.nixcdn.com/e6b05beebf170c3951c85778d9ea06a7/58da098a/PreNCT13/Giants-TakeThat-4853929.mp4?t=1490684397959");
+				editText.setText("http://f9.stream.nixcdn.com/49842f3112ad7ba11bb27272e90f23d4/58db7005/NhacCuaTui939/RunninHomeToYou-GrantGustin-4851142.mp3?t=1490776170583");
 				break;
 			default:
 				break;
@@ -71,8 +71,8 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 	}
 
 	@Override
-	public void invalidUrl(String message) {
-		Log.d(TAG, "invalidUrl: ");
+	public void errorDownload(String message) {
+		Log.d(TAG, "errorDownload: ");
 		errorTextView.setText(message);
 		errorTextView.setVisibility(View.VISIBLE);
 	}

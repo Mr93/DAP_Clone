@@ -30,14 +30,12 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	private static final String TAG = FolderDownloadFragment.class.getSimpleName();
 	private RecyclerView recyclerView;
 	private DownloadListAdapter downloadListAdapter;
-	private List<TaskInfo> taskInfoList;
 	private ProvidedPresenter providedPresenter;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		taskInfoList = new ArrayList<>();
-		downloadListAdapter = new DownloadListAdapter(taskInfoList, getContext());
+
 	}
 
 	@Nullable
@@ -54,7 +52,6 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 		RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
 		recyclerView.setLayoutManager(layoutManager);
 		recyclerView.setItemAnimator(new DefaultItemAnimator());
-		recyclerView.setAdapter(downloadListAdapter);
 	}
 
 	private void createTouchCallBack() {
@@ -95,17 +92,18 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	}
 
 	@Override
-	public void updateDataRecycleView(ArrayList<TaskInfo> taskList) {
+	public void fetchDataRecycleView() {
 		if (recyclerView != null) {
-			this.taskInfoList.clear();
-			this.taskInfoList.addAll(taskList);
+			downloadListAdapter = new DownloadListAdapter(providedPresenter.getTaskInfoList(), getContext());
+			recyclerView.setAdapter(downloadListAdapter);
 			downloadListAdapter.notifyDataSetChanged();
-			Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	@Override
-	public List<TaskInfo> getListTask() {
-		return taskInfoList;
+	public void updateDataRecycleView() {
+		if (recyclerView != null && downloadListAdapter != null) {
+			downloadListAdapter.notifyDataSetChanged();
+		}
 	}
 }

@@ -1,10 +1,14 @@
 package com.example.administrator.dapclone.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
+import com.example.administrator.dapclone.MyApplication;
 import com.example.administrator.dapclone.R;
 import com.example.administrator.dapclone.exception.NetworkException;
 
@@ -104,5 +108,25 @@ public class Validator {
 
 	public static String getFileExtension(File file) {
 		return MimeTypeMap.getFileExtensionFromUrl(file.getName());
+	}
+
+	public static boolean isNetworkOnline() {
+		boolean status = false;
+		try {
+			ConnectivityManager cm = (ConnectivityManager) MyApplication.getAppContext().getSystemService(Context
+					.CONNECTIVITY_SERVICE);
+			NetworkInfo netInfo = cm.getNetworkInfo(0);
+			if (netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED) {
+				status = true;
+			} else {
+				netInfo = cm.getNetworkInfo(1);
+				if (netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED)
+					status = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return status;
 	}
 }

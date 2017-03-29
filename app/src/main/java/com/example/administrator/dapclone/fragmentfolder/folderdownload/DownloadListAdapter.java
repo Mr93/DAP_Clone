@@ -3,6 +3,7 @@ package com.example.administrator.dapclone.fragmentfolder.folderdownload;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,9 @@ public class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapte
 	public void onBindViewHolder(MyViewHolder holder, int position) {
 		TaskInfo taskInfo = taskInfoList.get(position);
 		holder.title.setText(taskInfo.name);
-		int progress = (int) (taskInfo.processedSize / taskInfo.size) * 100;
+		Log.d(TAG, "onBindViewHolder: " + taskInfo.processedSize + "/" + taskInfo.size);
+		Log.d(TAG, "onBindViewHolder: " + (taskInfo.processedSize * 100) / taskInfo.size);
+		int progress = (int) ((((float) taskInfo.processedSize) * 100) / ((float) taskInfo.size));
 		holder.progressText.setText(String.valueOf(progress) + "%");
 		holder.progressBar.setProgress(progress);
 		holder.avatar.setBackgroundResource(Validator.getDrawableIdByExtension(taskInfo.url));

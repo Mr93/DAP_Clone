@@ -15,13 +15,15 @@ import java.util.List;
 
 public interface IFolderDownloadFragment {
 	interface RequiredView {
-		void updateDataRecycleView(ArrayList<TaskInfo> taskList);
+		void fetchDataRecycleView();
 
-		List<TaskInfo> getListTask();
+		void updateDataRecycleView();
 	}
 
 	interface ProvidedPresenter {
 		void getDownloadDataFromDB();
+
+		ArrayList<TaskInfo> getTaskInfoList();
 
 		void setView(RequiredView view);
 

@@ -10,7 +10,7 @@ import com.example.administrator.dapclone.TaskInfo;
 
 public interface IDownloadFragment {
 	interface RequiredView {
-		void invalidUrl(String message);
+		void errorDownload(String message);
 
 		Context getFragmentContext();
 	}

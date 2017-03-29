@@ -132,7 +132,7 @@ public class SubTask extends Thread {
 	private void stopDownload() {
 		subTaskInfo.status = ConstantValues.STATUS_ERROR;
 		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
-		task.onThreadError(SubTask.this);
+		task.onThreadError(this);
 	}
 
 	private synchronized void writeToFile(ResponseBody body) throws IOException {
@@ -143,9 +143,9 @@ public class SubTask extends Thread {
 		}
 		inputStream.close();
 		randomAccessFile.close();
-		Log.d(TAG, "writeToFile: done ");
+		Log.d(TAG, "writeToFile: done " + subTaskInfo.end);
 		subTaskInfo.status = ConstantValues.STATUS_COMPLETED;
-		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
 		task.onThreadDone(this);
+		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
 	}
 }

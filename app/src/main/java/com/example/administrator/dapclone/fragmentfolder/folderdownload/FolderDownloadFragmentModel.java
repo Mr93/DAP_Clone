@@ -64,9 +64,9 @@ public class FolderDownloadFragmentModel implements ProvidedModel {
 						return;
 					}
 					if (ConstantValues.ACTION_NEW_TASK.equalsIgnoreCase(intent.getAction())) {
-
+						requiredPresenter.createNewTask(taskInfo);
 					} else if (ConstantValues.ACTION_UPDATE_TASK.equalsIgnoreCase(intent.getAction())) {
-
+						requiredPresenter.updateATask(taskInfo);
 					} else {
 
 					}

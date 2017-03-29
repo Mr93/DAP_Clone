@@ -1,10 +1,12 @@
 package com.example.administrator.dapclone.fragmentfolder.folderdownload;
 
+import android.util.Log;
+
 import com.example.administrator.dapclone.TaskInfo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static com.example.administrator.dapclone.fragmentfolder.folderdownload.IFolderDownloadFragment.*;
 
@@ -14,11 +16,15 @@ import static com.example.administrator.dapclone.fragmentfolder.folderdownload.I
 
 public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPresenter {
 
+	private static final String TAG = FolderDownloadPresenter.class.getSimpleName();
 	RequiredView requiredView;
 	ProvidedModel providedModel;
+	private List<TaskInfo> taskInfoList;
+
 
 	public FolderDownloadPresenter(RequiredView requiredView) {
 		this.requiredView = requiredView;
+		taskInfoList = new ArrayList<>();
 	}
 
 	@Override
@@ -28,28 +34,54 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 	}
 
 	@Override
+	public ArrayList<TaskInfo> getTaskInfoList() {
+		return (ArrayList<TaskInfo>) taskInfoList;
+	}
+
+	@Override
 	public void setDownloadData(ArrayList<TaskInfo> taskList) {
 		if (requiredView != null) {
-			Collections.reverse(taskList);
-			requiredView.updateDataRecycleView(taskList);
+			this.taskInfoList = taskList;
+			Collections.reverse(this.taskInfoList);
+			requiredView.fetchDataRecycleView();
 		}
 	}
 
 	@Override
 	public void createNewTask(TaskInfo taskInfo) {
-		ArrayList<TaskInfo> listTask = (ArrayList<TaskInfo>) requiredView.getListTask();
-		listTask.add(0, taskInfo);
-		if (requiredView != null) {
-			requiredView.updateDataRecycleView(listTask);
+		if (taskInfo != null) {
+			boolean isDuplicate = false;
+			for (TaskInfo temp : taskInfoList) {
+				if (temp.taskId == taskInfo.taskId && temp.name.equalsIgnoreCase(taskInfo.name) &&
+						temp.url.equalsIgnoreCase(taskInfo.url) && temp.isDownload == taskInfo.isDownload) {
+					isDuplicate = true;
+					break;
+				}
+			}
+			if (!isDuplicate && requiredView != null) {
+				this.taskInfoList.add(0, taskInfo);
+				requiredView.updateDataRecycleView();
+			}
 		}
+		Log.d(TAG, "createNewTask: " + taskInfo.taskId);
+		Log.d(TAG, "createNewTask: " + this.taskInfoList.size());
 	}
 
 	@Override
 	public void updateATask(TaskInfo taskInfo) {
-		ArrayList<TaskInfo> listTask = (ArrayList<TaskInfo>) requiredView.getListTask();
-		listTask.add(0, taskInfo);
-		if (requiredView != null) {
-			requiredView.updateDataRecycleView(listTask);
+		Log.d(TAG, "updateATask: " + taskInfo.processedSize);
+		Log.d(TAG, "updateATask: " + this.taskInfoList.size());
+		if (taskInfo != null) {
+			for (TaskInfo temp : taskInfoList) {
+				if (temp.taskId == taskInfo.taskId && temp.name.equalsIgnoreCase(taskInfo.name) &&
+						temp.url.equalsIgnoreCase(taskInfo.url) && temp.isDownload == taskInfo.isDownload) {
+					temp.processedSize = taskInfo.processedSize;
+					break;
+				}
+			}
+			if (requiredView != null) {
+				requiredView.updateDataRecycleView();
+			}
 		}
 	}
 
