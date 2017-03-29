@@ -60,6 +60,7 @@ public class FolderDownloadFragmentModel implements ProvidedModel {
 			public void onReceive(Context context, Intent intent) {
 				if (intent != null) {
 					TaskInfo taskInfo = intent.getParcelableExtra(ConstantValues.FILE_INFO);
+					Log.d(TAG, "onReceive: " + intent.getAction());
 					if (taskInfo == null) {
 						return;
 					}

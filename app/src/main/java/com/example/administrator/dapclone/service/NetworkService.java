@@ -16,9 +16,9 @@ import java.io.File;
  * Created by Administrator on 03/24/2017.
  */
 
-public class NetworkActivityManager extends Service {
+public class NetworkService extends Service {
 
-	private static final String TAG = NetworkActivityManager.class.getSimpleName();
+	private static final String TAG = NetworkService.class.getSimpleName();
 
 	public static Object monitor = new Object();
 
@@ -27,7 +27,7 @@ public class NetworkActivityManager extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		taskManager = TaskManager.getInstance();
-		if (intent != null) {
+		if (intent != null && intent.getParcelableExtra(ConstantValues.FILE_INFO) != null) {
 			TaskInfo taskInfo = intent.getParcelableExtra(ConstantValues.FILE_INFO);
 			File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
 			filePath.mkdirs();
@@ -42,6 +42,10 @@ public class NetworkActivityManager extends Service {
 					monitor.notify();
 				}
 			} else if (taskManager.getState() == Thread.State.NEW) {
+				taskManager.start();
+			}
+		} else {
+			if (taskManager.getState() == Thread.State.NEW) {
 				taskManager.start();
 			}
 		}

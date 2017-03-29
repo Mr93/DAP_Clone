@@ -1,16 +1,18 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.administrator.dapclone.ConstantValues;
+import com.example.administrator.dapclone.DBHelper;
 import com.example.administrator.dapclone.TaskInfo;
-import com.example.administrator.dapclone.service.NetworkActivityManager;
-import com.example.administrator.dapclone.utils.Validator;
+import com.example.administrator.dapclone.service.NetworkService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -34,11 +36,10 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 
 	@Override
 	public void download(final TaskInfo taskInfo) {
-		new Thread(new Runnable() {
+		new AsyncTask<Void, Void, String>() {
 			@Override
-			public void run() {
+			protected String doInBackground(Void... params) {
 				try {
-
 					OkHttpClient client = new OkHttpClient.Builder()
 							.connectTimeout(5, TimeUnit.MINUTES)
 							.readTimeout(5, TimeUnit.MINUTES)
@@ -48,26 +49,38 @@ public class DownloadModel implements IDownloadFragment.ProvidedModel {
 							.build();
 					Response response = client.newCall(request).execute();
 					if (response.code() / 100 == 2) {
-						taskInfo.path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + taskInfo
-								.name;
-						if (response.header("Content-Length") != null) {
-							taskInfo.size = Long.valueOf(response.header("Content-Length"));
-						}
-						if ("bytes".equalsIgnoreCase(response.header("Accept-Ranges")) && taskInfo.size != 0) {
-							taskInfo.isMultiThread = true;
-						} else {
-							taskInfo.isMultiThread = false;
-						}
-						Intent intent = new Intent(presenter.getContext(), NetworkActivityManager.class);
-						intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
-						Log.d(TAG, "run: " + taskInfo.taskId);
-						presenter.getContext().startService(intent);
+						handleRequestSuccess(response, taskInfo);
 					}
 				} catch (IOException e) {
 					Log.d(TAG, "run: " + e);
 					e.printStackTrace();
+					return e.toString();
 				}
+				return "Start Downloading";
 			}
-		}).start();
+
+			@Override
+			protected void onPostExecute(String values) {
+				Toast.makeText(presenter.getContext(), values, Toast.LENGTH_SHORT).show();
+				super.onPostExecute(values);
+			}
+		}.execute();
+	}
+
+	private void handleRequestSuccess(Response response, TaskInfo taskInfo) {
+		taskInfo.path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/" + taskInfo
+				.name;
+		if (response.header("Content-Length") != null) {
+			taskInfo.size = Long.valueOf(response.header("Content-Length"));
+		}
+		if ("bytes".equalsIgnoreCase(response.header("Accept-Ranges")) && taskInfo.size != 0) {
+			taskInfo.isMultiThread = true;
+		} else {
+			taskInfo.isMultiThread = false;
+		}
+		Intent intent = new Intent(presenter.getContext(), NetworkService.class);
+		intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
+		Log.d(TAG, "run: " + taskInfo.taskId);
+		presenter.getContext().startService(intent);
 	}
 }

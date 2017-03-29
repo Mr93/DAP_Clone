@@ -32,6 +32,7 @@ public class SubTask extends Thread {
 	private byte[] buffer = new byte[4096];
 	RandomAccessFile randomAccessFile;
 	private int errorTime = 0;
+	private boolean isError = false;
 
 	public SubTask(Task task, SubTaskInfo subTaskInfo) {
 		this.task = task;
@@ -61,15 +62,22 @@ public class SubTask extends Thread {
 	@Override
 	public void run() {
 		super.run();
-		updateDB();
-		while (isRunning) {
-			isRunning = false;
-			OkHttpClient client = new OkHttpClient.Builder()
-					.connectTimeout(5, TimeUnit.MINUTES)
-					.readTimeout(5, TimeUnit.MINUTES)
-					.build();
-			downloadAPart(client, task.getTaskInfo());
+		try {
+			updateDB();
+			while (isRunning) {
+				isRunning = false;
+				OkHttpClient client = new OkHttpClient.Builder()
+						.connectTimeout(5, TimeUnit.MINUTES)
+						.readTimeout(5, TimeUnit.MINUTES)
+						.build();
+				downloadAPart(client, task.getTaskInfo());
+			}
+		} finally {
+			if (isError) {
+				stopDownload();
+			}
 		}
+
 	}
 
 	private void updateDB() {
@@ -102,11 +110,11 @@ public class SubTask extends Thread {
 								writeToFile(response.body());
 								Log.d(TAG, "run: code " + response.code());
 							} catch (IOException e) {
-								stopDownload();
+								isError = true;
 								e.printStackTrace();
 							}
 						} else {
-							stopDownload();
+							isError = true;
 							Log.d(TAG, "server contact failed");
 						}
 					}
@@ -125,17 +133,19 @@ public class SubTask extends Thread {
 			downloadAPart(client, taskInfo);
 			errorTime++;
 		} else {
-			stopDownload();
+			isError = true;
 		}
 	}
 
 	private void stopDownload() {
 		subTaskInfo.status = ConstantValues.STATUS_ERROR;
+		Log.d(TAG, "stopDownload: " + subTaskInfo.status + ", " + subTaskInfo.end + ", " + this.getState());
 		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
 		task.onThreadError(this);
 	}
 
-	private synchronized void writeToFile(ResponseBody body) throws IOException {
+	//synchronized
+	private void writeToFile(ResponseBody body) throws IOException {
 		InputStream inputStream = body.byteStream();
 		int count;
 		while ((count = inputStream.read(buffer)) != -1) {

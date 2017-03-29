@@ -52,6 +52,8 @@ public class Task extends Thread {
 						task.start();
 					}
 				}
+				Log.d(TAG, "run: error " + errorThread.size());
+				Log.d(TAG, "run: error " + redownloadErrorTime);
 				if (downloadingThread.size() == 0) {
 					isRunning = false;
 					if (errorThread.size() == 0) {
@@ -84,13 +86,13 @@ public class Task extends Thread {
 			createNewListSubTask();
 		} else {
 			ArrayList<SubTaskInfo> listSubTaskInfo = DBHelper.getInstance().getAllSubTask(taskInfo.taskId);
+			taskInfo.status = ConstantValues.STATUS_DOWNLOADING;
+			DBHelper.getInstance().updateTask(taskInfo);
 			if (listSubTaskInfo.size() != 0) {
 				Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 				getOldListSubTask(listSubTaskInfo);
 			} else {
 				Log.d(TAG, "updateListThread: " + taskInfo.taskId);
-				taskInfo.status = ConstantValues.STATUS_DOWNLOADING;
-				DBHelper.getInstance().updateTask(taskInfo);
 				createNewListSubTask();
 			}
 		}
@@ -137,7 +139,8 @@ public class Task extends Thread {
 			for (SubTask subTask : errorThread) {
 				Log.d(TAG, "updateDownloadingList: " + errorThread.remove(subTask));
 				subTask.getSubTaskInfo().status = ConstantValues.STATUS_PENDING;
-				pendingThread.offer(subTask);
+				SubTask newSubTask = new SubTask(this, subTask.getSubTaskInfo());
+				pendingThread.offer(newSubTask);
 				DBHelper.getInstance().updateSubTask(subTask.getSubTaskInfo(), taskInfo.taskId);
 			}
 			redownloadErrorTime = redownloadErrorTime - 1;

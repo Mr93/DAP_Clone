@@ -1,5 +1,6 @@
 package com.example.administrator.dapclone;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
@@ -7,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.administrator.dapclone.service.NetworkService;
 import com.example.administrator.dapclone.view.BottomNavigationViewHelper;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
@@ -32,7 +34,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 		bottomNavigationView.setOnNavigationItemSelectedListener(this);
 		BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
 		viewPager.addOnPageChangeListener(this);
-
+		Intent intent = new Intent(this, NetworkService.class);
+		startService(intent);
 	}
 
 	@Override

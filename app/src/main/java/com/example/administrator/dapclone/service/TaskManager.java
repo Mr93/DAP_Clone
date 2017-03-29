@@ -20,6 +20,8 @@ public class TaskManager extends Thread {
 	BlockingQueue<Task> downloadingTask, pendingTask, errorTask;
 	private static TaskManager instance;
 	private boolean isRunning = false;
+	private int redownloadErrorTime = 1;
+
 
 	private TaskManager() {
 		downloadingTask = new LinkedBlockingQueue<>();
@@ -78,6 +80,19 @@ public class TaskManager extends Thread {
 		Log.d(TAG, "updateFromPendingToDownloading: " + SettingUtils.getIntSettings(ConstantValues
 				.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD));
 		Log.d(TAG, "updateFromPendingToDownloading: " + downloadingTask.size());
+		if (pendingTask.isEmpty() && downloadingTask.isEmpty() && redownloadErrorTime > 0 && !errorTask.isEmpty()) {
+			for (Task task : errorTask) {
+				Log.d(TAG, "updateDownloadingList: " + errorTask.remove(task));
+				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
+				Task newTask = new Task(task.getTaskInfo(), this);
+				pendingTask.offer(newTask);
+				DBHelper.getInstance().updateTask(task.getTaskInfo());
+			}
+			redownloadErrorTime = redownloadErrorTime - 1;
+		}
+		if (redownloadErrorTime <= 0) {
+			Log.d(TAG, "updateFromPendingToDownloading: error " + errorTask.size());
+		}
 		for (int i = 0; i < offset; i++) {
 			Task task = pendingTask.poll();
 			if (task != null) {
@@ -107,13 +122,16 @@ public class TaskManager extends Thread {
 					Log.d(TAG, "run: " + task.getState());
 					if (task.getState() == State.NEW) {
 						task.start();
+					} else if (task.getState() == State.TERMINATED) {
+						taskError(task);
 					}
 				}
 				if (downloadingTask.size() == 0) {
+					Log.d(TAG, "run: error " + errorTask.size());
 					isRunning = false;
-					synchronized (NetworkActivityManager.monitor) {
+					synchronized (NetworkService.monitor) {
 						try {
-							NetworkActivityManager.monitor.wait();
+							NetworkService.monitor.wait();
 						} catch (InterruptedException e) {
 
 						}
@@ -131,10 +149,14 @@ public class TaskManager extends Thread {
 	public void addTask(TaskInfo taskInfo) {
 		Task task = new Task(taskInfo, this);
 		if (checkContain(taskInfo, errorTask)) {
+			task = getTaskFromQueue(taskInfo, errorTask);
+			Log.d(TAG, "addTask error: " + task.getTaskInfo().processedSize);
 			errorTask.remove(task);
 			if (downloadingTask.size() >= SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD)) {
+				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
 				pendingTask.offer(task);
 			} else {
+				task.getTaskInfo().status = ConstantValues.STATUS_DOWNLOADING;
 				downloadingTask.offer(task);
 			}
 		} else if (!checkContain(taskInfo, downloadingTask) && !checkContain(taskInfo, pendingTask)) {
@@ -160,6 +182,17 @@ public class TaskManager extends Thread {
 			}
 		}
 		return false;
+	}
+
+	public Task getTaskFromQueue(TaskInfo taskInfo, BlockingQueue<Task> tasks) {
+		for (Task task : tasks) {
+			if (task.getTaskInfo().isDownload == taskInfo.isDownload &&
+					task.getTaskInfo().name.equalsIgnoreCase(taskInfo.name) &&
+					task.getTaskInfo().url.equalsIgnoreCase(taskInfo.url)) {
+				return task;
+			}
+		}
+		return null;
 	}
 
 	public synchronized void taskCompleted(Task task) {
