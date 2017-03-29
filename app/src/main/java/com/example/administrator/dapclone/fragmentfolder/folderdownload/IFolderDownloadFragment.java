@@ -7,6 +7,7 @@ import com.example.administrator.dapclone.TaskInfo;
 import com.example.administrator.dapclone.fragmentdownload.IDownloadFragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Administrator on 03/29/2017.
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 public interface IFolderDownloadFragment {
 	interface RequiredView {
 		void updateDataRecycleView(ArrayList<TaskInfo> taskList);
+
+		List<TaskInfo> getListTask();
 	}
 
 	interface ProvidedPresenter {
@@ -27,9 +30,15 @@ public interface IFolderDownloadFragment {
 
 	interface RequiredPresenter {
 		void setDownloadData(ArrayList<TaskInfo> taskList);
+
+		void createNewTask(TaskInfo taskInfo);
+
+		void updateATask(TaskInfo taskInfo);
 	}
 
 	interface ProvidedModel {
 		void getDownloadDataFromDB();
+
+		void registerBroadCast();
 	}
 }

@@ -39,7 +39,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://s71.stream.nixcdn.com/tvc/oppo_1603_15s.mp4");
+		editText.setText("http://f9.stream.nixcdn.com/86ec223eff28caa17d3d98a9a03d35f0/58db37c8/PreNCT13/Cold--4772978.mp4?t=1490763377116");
 		setupMVP();
 		return view;
 	}

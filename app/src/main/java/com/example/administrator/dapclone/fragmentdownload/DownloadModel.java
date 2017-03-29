@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.TaskInfo;
-import com.example.administrator.dapclone.Service.NetworkActivityManager;
+import com.example.administrator.dapclone.service.NetworkActivityManager;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

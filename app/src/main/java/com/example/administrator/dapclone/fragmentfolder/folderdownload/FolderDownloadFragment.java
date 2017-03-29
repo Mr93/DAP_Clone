@@ -103,4 +103,9 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 			Toast.makeText(getContext(), "Updated", Toast.LENGTH_SHORT).show();
 		}
 	}
+
+	@Override
+	public List<TaskInfo> getListTask() {
+		return taskInfoList;
+	}
 }

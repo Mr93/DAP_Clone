@@ -1,6 +1,5 @@
-package com.example.administrator.dapclone.Service;
+package com.example.administrator.dapclone.service;
 
-import android.app.Service;
 import android.util.Log;
 
 import com.example.administrator.dapclone.ConstantValues;

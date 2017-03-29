@@ -1,9 +1,11 @@
-package com.example.administrator.dapclone.Service;
+package com.example.administrator.dapclone.service;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.DBHelper;
+import com.example.administrator.dapclone.MyApplication;
 import com.example.administrator.dapclone.SubTaskInfo;
 import com.example.administrator.dapclone.TaskInfo;
 
@@ -74,6 +76,10 @@ public class Task extends Thread {
 		Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 		if (taskInfo.taskId == -1) {
 			taskInfo.taskId = DBHelper.getInstance().insertTask(taskInfo);
+			Intent intent = new Intent();
+			intent.setAction(ConstantValues.ACTION_NEW_TASK);
+			intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
+			MyApplication.getAppContext().sendBroadcast(intent);
 			Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 			createNewListSubTask();
 		} else {
@@ -155,6 +161,10 @@ public class Task extends Thread {
 		Log.d(TAG, "onThreadDone: downloaded size " + (taskInfo.processedSize));
 		DBHelper.getInstance().updateTask(taskInfo);
 		updateDownloadingList();
+		Intent intent = new Intent();
+		intent.setAction(ConstantValues.ACTION_NEW_TASK);
+		intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
+		MyApplication.getAppContext().sendBroadcast(intent);
 	}
 
 	public synchronized void onThreadError(SubTask subTask) {
