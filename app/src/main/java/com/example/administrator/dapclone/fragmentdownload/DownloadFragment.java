@@ -39,7 +39,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://f9.stream.nixcdn.com/49842f3112ad7ba11bb27272e90f23d4/58db7005/NhacCuaTui939/RunninHomeToYou-GrantGustin-4851142.mp3?t=1490776170583");
+		editText.setText("http://f9.stream.nixcdn.com/fdc01155bfd21616ecf24fca1c27ac5f/58dcac52/PreNCT13/BeautyAndTheBeast-ArianaGrandeJohnLegend-4814984.mp4?t=1490857714077");
 		setupMVP();
 		return view;
 	}
@@ -63,7 +63,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 			case R.id.button_download:
 				errorTextView.setVisibility(View.GONE);
 				providedPresenter.download(editText.getText().toString().trim());
-				editText.setText("http://f9.stream.nixcdn.com/49842f3112ad7ba11bb27272e90f23d4/58db7005/NhacCuaTui939/RunninHomeToYou-GrantGustin-4851142.mp3?t=1490776170583");
+				editText.setText("http://f9.stream.nixcdn.com/31c2fa3b9f72d0dcdc9c0a57f5ca0647/58dc57f9/Warner_Audio12/HoldMyHand-JessGlynne-4845905.mp3?t=1490835658947");
 				break;
 			default:
 				break;

@@ -15,4 +15,6 @@ public class ConstantValues {
 	public final static String ACTION_NEW_TASK = "com.example.administrator.dapclone.newtask";
 	public final static String ACTION_UPDATE_TASK = "com.example.administrator.dapclone.updatetask";
 	public final static String ACTION_ERROR_TASK = "com.example.administrator.dapclone.errortask";
+	public final static String ACTION_COMPLETE_TASK = "com.example.administrator.dapclone.completetask";
+
 }

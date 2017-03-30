@@ -1,9 +1,12 @@
 package com.example.administrator.dapclone.service;
 
+import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.DBHelper;
+import com.example.administrator.dapclone.MyApplication;
 import com.example.administrator.dapclone.SettingUtils;
 import com.example.administrator.dapclone.TaskInfo;
 
@@ -34,6 +37,10 @@ public class TaskManager extends Thread {
 			instance = new TaskManager();
 		}
 		return instance;
+	}
+
+	public void resetTaskManager() {
+		instance = new TaskManager();
 	}
 
 	private void setUpQueues() {
@@ -72,29 +79,6 @@ public class TaskManager extends Thread {
 		}
 	}
 
-	private void updateToDownloadingQueue() {
-		int offset = SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD) -
-				downloadingTask.size();
-		if (pendingTask.isEmpty() && downloadingTask.isEmpty() && reDownloadErrorTime > 0 && !errorTask.isEmpty()) {
-			for (Task task : errorTask) {
-				errorTask.remove(task);
-				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
-				Task newTask = new Task(task.getTaskInfo(), this);
-				pendingTask.offer(newTask);
-				DBHelper.getInstance().updateTask(task.getTaskInfo());
-			}
-			reDownloadErrorTime = reDownloadErrorTime - 1;
-			Log.d(TAG, "updateToDownloadingQueue: " + reDownloadErrorTime);
-		}
-		for (int i = 0; i < offset; i++) {
-			Task task = pendingTask.poll();
-			if (task != null) {
-				task.getTaskInfo().status = ConstantValues.STATUS_DOWNLOADING;
-				downloadingTask.offer(task);
-				DBHelper.getInstance().updateTask(task.getTaskInfo());
-			}
-		}
-	}
 
 	@Override
 	public synchronized void start() {
@@ -131,6 +115,30 @@ public class TaskManager extends Thread {
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void updateToDownloadingQueue() {
+		int offset = SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD) -
+				downloadingTask.size();
+		if (pendingTask.isEmpty() && downloadingTask.isEmpty() && reDownloadErrorTime > 0 && !errorTask.isEmpty()) {
+			for (Task task : errorTask) {
+				errorTask.remove(task);
+				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
+				Task newTask = new Task(task.getTaskInfo(), this);
+				pendingTask.offer(newTask);
+				DBHelper.getInstance().updateTask(task.getTaskInfo());
+			}
+			reDownloadErrorTime = reDownloadErrorTime - 1;
+			Log.d(TAG, "updateToDownloadingQueue: " + reDownloadErrorTime);
+		}
+		for (int i = 0; i < offset; i++) {
+			Task task = pendingTask.poll();
+			if (task != null) {
+				task.getTaskInfo().status = ConstantValues.STATUS_DOWNLOADING;
+				downloadingTask.offer(task);
+				DBHelper.getInstance().updateTask(task.getTaskInfo());
+			}
 		}
 	}
 
@@ -184,11 +192,20 @@ public class TaskManager extends Thread {
 		downloadingTask.remove(task);
 		DBHelper.getInstance().deleteSubTaskByTaskId(task.getTaskInfo().taskId);
 		updateToDownloadingQueue();
+		updateUI(task, ConstantValues.ACTION_COMPLETE_TASK);
 	}
 
 	public synchronized void taskError(Task task) {
 		downloadingTask.remove(task);
 		errorTask.offer(task);
+		updateUI(task, ConstantValues.ACTION_ERROR_TASK);
+	}
+
+	private void updateUI(Task task, String actionErrorTask) {
+		Intent intent = new Intent();
+		intent.setAction(actionErrorTask);
+		intent.putExtra(ConstantValues.FILE_INFO, task.getTaskInfo());
+		MyApplication.getAppContext().sendBroadcast(intent);
 	}
 
 	public void setRunning(boolean running) {

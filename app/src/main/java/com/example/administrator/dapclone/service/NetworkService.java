@@ -37,12 +37,16 @@ public class NetworkService extends Service {
 			}
 			taskManager.addTask(taskInfo);
 			Log.d(TAG, "onStartCommand: " + taskManager.getState());
-			if (taskManager.getState() == Thread.State.WAITING || taskManager.getState() == Thread.State.TIMED_WAITING) {
+			if (taskManager.getState() == Thread.State.WAITING) {
 				taskManager.setRunning(true);
 				synchronized (monitor) {
 					monitor.notify();
 				}
 			} else if (taskManager.getState() == Thread.State.NEW) {
+				taskManager.start();
+			} else if (taskManager.getState() == Thread.State.TIMED_WAITING) {
+				taskManager.resetTaskManager();
+				taskManager = TaskManager.getInstance();
 				taskManager.start();
 			}
 		} else {

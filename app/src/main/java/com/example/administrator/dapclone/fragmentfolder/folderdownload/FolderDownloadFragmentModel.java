@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.DBHelper;
@@ -50,11 +51,17 @@ public class FolderDownloadFragmentModel implements ProvidedModel {
 	}
 
 	@Override
+	public void unRegisterBroadCast() {
+		MyApplication.getAppContext().unregisterReceiver(broadcastReceiver);
+	}
+
+	@Override
 	public void registerBroadCast() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ConstantValues.ACTION_NEW_TASK);
 		filter.addAction(ConstantValues.ACTION_ERROR_TASK);
 		filter.addAction(ConstantValues.ACTION_UPDATE_TASK);
+		filter.addAction(ConstantValues.ACTION_COMPLETE_TASK);
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -65,11 +72,15 @@ public class FolderDownloadFragmentModel implements ProvidedModel {
 						return;
 					}
 					if (ConstantValues.ACTION_NEW_TASK.equalsIgnoreCase(intent.getAction())) {
+						Log.d(TAG, "onReceive: new task");
 						requiredPresenter.createNewTask(taskInfo);
 					} else if (ConstantValues.ACTION_UPDATE_TASK.equalsIgnoreCase(intent.getAction())) {
 						requiredPresenter.updateATask(taskInfo);
+					} else if (ConstantValues.ACTION_COMPLETE_TASK.equalsIgnoreCase(intent.getAction())) {
+						Log.d(TAG, "onReceive: done");
+						Toast.makeText(context, taskInfo.name + " download completed", Toast.LENGTH_SHORT).show();
 					} else {
-
+						Toast.makeText(context, taskInfo.name + " download error", Toast.LENGTH_SHORT).show();
 					}
 				}
 			}

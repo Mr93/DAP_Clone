@@ -28,6 +28,8 @@ public interface IFolderDownloadFragment {
 		void setView(RequiredView view);
 
 		void setModel(ProvidedModel model);
+
+		void unRegisterBroadcast();
 	}
 
 	interface RequiredPresenter {
@@ -41,6 +43,7 @@ public interface IFolderDownloadFragment {
 	interface ProvidedModel {
 		void getDownloadDataFromDB();
 
+		void unRegisterBroadCast();
 		void registerBroadCast();
 	}
 }

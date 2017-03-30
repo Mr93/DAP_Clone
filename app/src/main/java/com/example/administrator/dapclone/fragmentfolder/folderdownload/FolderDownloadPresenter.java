@@ -94,4 +94,9 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 	public void setModel(ProvidedModel model) {
 		this.providedModel = model;
 	}
+
+	@Override
+	public void unRegisterBroadcast() {
+		providedModel.unRegisterBroadCast();
+	}
 }

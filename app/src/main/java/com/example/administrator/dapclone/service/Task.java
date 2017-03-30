@@ -118,7 +118,7 @@ public class Task extends Thread {
 				errorThread.offer(new SubTask(this, subTaskInfo));
 			} else if (ConstantValues.STATUS_PENDING.equalsIgnoreCase(subTaskInfo.status)) {
 				pendingThread.offer(new SubTask(this, subTaskInfo));
-			} else {
+			} else if (ConstantValues.STATUS_DOWNLOADING.equalsIgnoreCase(subTaskInfo.status)) {
 				downloadingThread.offer(new SubTask(this, subTaskInfo));
 			}
 		}
@@ -150,9 +150,6 @@ public class Task extends Thread {
 	}
 
 	public synchronized void onThreadDone(SubTask subTask) {
-		/*Log.d(TAG, "onThreadDone: " + downloadingThread.size());
-		Log.d(TAG, "onThreadDone: " + );
-		Log.d(TAG, "onThreadDone: " + downloadingThread.size());*/
 		Log.d(TAG, "onThreadDone: " + downloadingThread.contains(subTask));
 		if (downloadingThread.remove(subTask)) {
 			taskInfo.processedSize = taskInfo.processedSize + (int) (subTask.getSubTaskInfo().end - subTask

@@ -1,9 +1,15 @@
 package com.example.administrator.dapclone;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -23,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 			R.id.folder_bottom_menu,
 			R.id.setting_bottom_menu
 	};
+	private static final int MY_PERMISSION_REQUEST_STORAGE = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +41,56 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 		bottomNavigationView.setOnNavigationItemSelectedListener(this);
 		BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
 		viewPager.addOnPageChangeListener(this);
+		if (permissionGranted()) {
+			startMyService();
+		}
+	}
+
+	private void startMyService() {
 		Intent intent = new Intent(this, NetworkService.class);
 		startService(intent);
+	}
+
+	private boolean permissionGranted() {
+		boolean permissionGranted = false;
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				showPermissionExplainDialog();
+			} else {
+				ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST_STORAGE);
+			}
+		} else {
+			permissionGranted = true;
+		}
+		return permissionGranted;
+	}
+
+	private void showPermissionExplainDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Permission")
+				.setMessage("Need storage permission, enable in settings")
+				.setOnDismissListener(new DialogInterface.OnDismissListener() {
+					@Override
+					public void onDismiss(DialogInterface dialog) {
+						finish();
+					}
+				});
+		builder.create().show();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		switch (requestCode) {
+			case MY_PERMISSION_REQUEST_STORAGE:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					startMyService();
+				} else {
+					showPermissionExplainDialog();
+				}
+				break;
+			default:
+				break;
+		}
 	}
 
 	@Override

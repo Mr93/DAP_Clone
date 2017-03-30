@@ -92,6 +92,12 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	}
 
 	@Override
+	public void onStop() {
+		super.onStop();
+		providedPresenter.unRegisterBroadcast();
+	}
+
+	@Override
 	public void fetchDataRecycleView() {
 		if (recyclerView != null) {
 			downloadListAdapter = new DownloadListAdapter(providedPresenter.getTaskInfoList(), getContext());

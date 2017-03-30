@@ -42,8 +42,6 @@ public class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapte
 	public void onBindViewHolder(MyViewHolder holder, int position) {
 		TaskInfo taskInfo = taskInfoList.get(position);
 		holder.title.setText(taskInfo.name);
-		Log.d(TAG, "onBindViewHolder: " + taskInfo.processedSize + "/" + taskInfo.size);
-		Log.d(TAG, "onBindViewHolder: " + (taskInfo.processedSize * 100) / taskInfo.size);
 		int progress = (int) ((((float) taskInfo.processedSize) * 100) / ((float) taskInfo.size));
 		holder.progressText.setText(String.valueOf(progress) + "%");
 		holder.progressBar.setProgress(progress);

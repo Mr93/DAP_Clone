@@ -131,6 +131,9 @@ public class SubTask extends Thread {
 	}
 
 	private void stopDownload() {
+		if (subTaskInfo.status.equalsIgnoreCase(ConstantValues.STATUS_COMPLETED)) {
+			Log.d(TAG, "stopDownload: error here " + subTaskInfo.start);
+		}
 		subTaskInfo.status = ConstantValues.STATUS_ERROR;
 		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
 		task.onThreadError(this);
