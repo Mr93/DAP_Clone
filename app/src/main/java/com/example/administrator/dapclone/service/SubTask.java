@@ -31,14 +31,12 @@ public class SubTask extends Thread {
 	private boolean isRunning = false;
 	private byte[] buffer = new byte[4096];
 	RandomAccessFile randomAccessFile;
-	private int errorTime = 0;
-	private boolean isError = false;
+	private int errorTime = 2;
+	private boolean isError = true;
 
 	public SubTask(Task task, SubTaskInfo subTaskInfo) {
 		this.task = task;
-		Log.d(TAG, "SubTask aaaa: " + this.task.getTaskInfo().taskId);
 		this.subTaskInfo = subTaskInfo;
-		Log.d(TAG, "SubTask aaaa: " + this.getSubTaskInfo().taskId);
 	}
 
 	public SubTaskInfo getSubTaskInfo() {
@@ -47,22 +45,25 @@ public class SubTask extends Thread {
 
 	@Override
 	public synchronized void start() {
-		super.start();
 		isRunning = true;
 		try {
 			randomAccessFile = new RandomAccessFile(task.getTaskInfo().path, "rw");
 			randomAccessFile.seek(subTaskInfo.start);
 		} catch (FileNotFoundException e) {
+			isRunning = false;
+			stopDownload();
 			e.printStackTrace();
 		} catch (IOException e) {
+			isRunning = false;
+			stopDownload();
 			e.printStackTrace();
 		}
+		super.start();
 	}
 
 	@Override
 	public void run() {
 		super.run();
-		try {
 			updateDB();
 			while (isRunning) {
 				isRunning = false;
@@ -72,12 +73,6 @@ public class SubTask extends Thread {
 						.build();
 				downloadAPart(client, task.getTaskInfo());
 			}
-		} finally {
-			if (isError) {
-				stopDownload();
-			}
-		}
-
 	}
 
 	private void updateDB() {
@@ -85,7 +80,6 @@ public class SubTask extends Thread {
 			this.subTaskInfo.subTaskId = DBHelper.getInstance().insertSubTask(subTaskInfo, task.getTaskInfo().taskId);
 		} else {
 			if (task.getTaskInfo().taskId == -1) {
-				Log.d(TAG, "updateDB: 2 ");
 				this.subTaskInfo.subTaskId = DBHelper.getInstance().insertSubTask(subTaskInfo, task.getTaskInfo().taskId);
 			}
 		}
@@ -108,14 +102,13 @@ public class SubTask extends Thread {
 						if (response.isSuccessful()) {
 							try {
 								writeToFile(response.body());
-								Log.d(TAG, "run: code " + response.code());
 							} catch (IOException e) {
-								isError = true;
+								stopDownload();
 								e.printStackTrace();
 							}
 						} else {
-							isError = true;
-							Log.d(TAG, "server contact failed");
+							handLeError(client, taskInfo);
+							Log.e(TAG, "server contact failed");
 						}
 					}
 				}).start();
@@ -133,13 +126,12 @@ public class SubTask extends Thread {
 			downloadAPart(client, taskInfo);
 			errorTime++;
 		} else {
-			isError = true;
+			stopDownload();
 		}
 	}
 
 	private void stopDownload() {
 		subTaskInfo.status = ConstantValues.STATUS_ERROR;
-		Log.d(TAG, "stopDownload: " + subTaskInfo.status + ", " + subTaskInfo.end + ", " + this.getState());
 		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
 		task.onThreadError(this);
 	}
@@ -153,9 +145,9 @@ public class SubTask extends Thread {
 		}
 		inputStream.close();
 		randomAccessFile.close();
-		Log.d(TAG, "writeToFile: done " + subTaskInfo.end);
+		this.isError = false;
 		subTaskInfo.status = ConstantValues.STATUS_COMPLETED;
-		task.onThreadDone(this);
 		DBHelper.getInstance().updateSubTask(subTaskInfo, subTaskInfo.taskId);
+		task.onThreadDone(this);
 	}
 }

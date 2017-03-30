@@ -25,7 +25,7 @@ public class Task extends Thread {
 	BlockingQueue<SubTask> downloadingThread, pendingThread, errorThread;
 	private static final int MAX_THREAD = 16;
 	static final long PART_SIZE = 256000;
-	private int redownloadErrorTime = 3;
+	private int redownloadErrorTime = 1;
 
 	public Task(TaskInfo taskInfo, TaskManager taskManager) {
 		this.taskInfo = taskInfo;
@@ -52,10 +52,9 @@ public class Task extends Thread {
 						task.start();
 					}
 				}
-				Log.d(TAG, "run: error " + errorThread.size());
-				Log.d(TAG, "run: error " + redownloadErrorTime);
 				if (downloadingThread.size() == 0) {
 					isRunning = false;
+					Log.d(TAG, "run: error size " + errorThread.size());
 					if (errorThread.size() == 0) {
 						taskInfo.status = ConstantValues.STATUS_COMPLETED;
 						DBHelper.getInstance().updateTask(taskInfo);
@@ -75,24 +74,20 @@ public class Task extends Thread {
 	}
 
 	private void updateListThread() {
-		Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 		if (taskInfo.taskId == -1) {
 			taskInfo.taskId = DBHelper.getInstance().insertTask(taskInfo);
 			Intent intent = new Intent();
 			intent.setAction(ConstantValues.ACTION_NEW_TASK);
 			intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
 			MyApplication.getAppContext().sendBroadcast(intent);
-			Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 			createNewListSubTask();
 		} else {
 			ArrayList<SubTaskInfo> listSubTaskInfo = DBHelper.getInstance().getAllSubTask(taskInfo.taskId);
 			taskInfo.status = ConstantValues.STATUS_DOWNLOADING;
 			DBHelper.getInstance().updateTask(taskInfo);
 			if (listSubTaskInfo.size() != 0) {
-				Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 				getOldListSubTask(listSubTaskInfo);
 			} else {
-				Log.d(TAG, "updateListThread: " + taskInfo.taskId);
 				createNewListSubTask();
 			}
 		}
@@ -132,18 +127,17 @@ public class Task extends Thread {
 
 	private void updateDownloadingList() {
 		int offset = MAX_THREAD - downloadingThread.size();
-		Log.d(TAG, "updateDownloadingList: " + offset);
-		Log.d(TAG, "updateDownloadingList: " + downloadingThread.size());
-		Log.d(TAG, "updateDownloadingList: error " + errorThread.size());
+		Log.d(TAG, "updateDownloadingList: download queue size " + downloadingThread.size());
 		if (pendingThread.isEmpty() && downloadingThread.isEmpty() && redownloadErrorTime > 0 && !errorThread.isEmpty()) {
 			for (SubTask subTask : errorThread) {
-				Log.d(TAG, "updateDownloadingList: " + errorThread.remove(subTask));
+				errorThread.remove(subTask);
 				subTask.getSubTaskInfo().status = ConstantValues.STATUS_PENDING;
 				SubTask newSubTask = new SubTask(this, subTask.getSubTaskInfo());
 				pendingThread.offer(newSubTask);
 				DBHelper.getInstance().updateSubTask(subTask.getSubTaskInfo(), taskInfo.taskId);
 			}
 			redownloadErrorTime = redownloadErrorTime - 1;
+			Log.d(TAG, "updateDownloadingList: update error " + redownloadErrorTime);
 		}
 		for (int i = 0; i < offset; i++) {
 			SubTask subTask = pendingThread.poll();
@@ -156,32 +150,32 @@ public class Task extends Thread {
 	}
 
 	public synchronized void onThreadDone(SubTask subTask) {
-		Log.d(TAG, "onThreadDone: " + downloadingThread.remove(subTask));
-		Log.d(TAG, "onThreadDone: " + downloadingThread.size());
-		taskInfo.processedSize = taskInfo.processedSize + (int) (subTask.getSubTaskInfo().end - subTask
-				.getSubTaskInfo().start + 1);
-		Log.d(TAG, "onThreadDone: downloaded size " + (taskInfo.processedSize));
-		DBHelper.getInstance().updateTask(taskInfo);
-		updateDownloadingList();
-		Intent intent = new Intent();
-		intent.setAction(ConstantValues.ACTION_UPDATE_TASK);
-		intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
-		MyApplication.getAppContext().sendBroadcast(intent);
+		/*Log.d(TAG, "onThreadDone: " + downloadingThread.size());
+		Log.d(TAG, "onThreadDone: " + );
+		Log.d(TAG, "onThreadDone: " + downloadingThread.size());*/
+		Log.d(TAG, "onThreadDone: " + downloadingThread.contains(subTask));
+		if (downloadingThread.remove(subTask)) {
+			taskInfo.processedSize = taskInfo.processedSize + (int) (subTask.getSubTaskInfo().end - subTask
+					.getSubTaskInfo().start + 1);
+			DBHelper.getInstance().updateTask(taskInfo);
+			updateDownloadingList();
+			Intent intent = new Intent();
+			intent.setAction(ConstantValues.ACTION_UPDATE_TASK);
+			intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
+			MyApplication.getAppContext().sendBroadcast(intent);
+		}
 	}
 
+
 	public synchronized void onThreadError(SubTask subTask) {
-		Log.d(TAG, "onThreadError: " + downloadingThread.remove(subTask));
-		Log.d(TAG, "onThreadError: " + downloadingThread.size());
-		Log.d(TAG, "onThreadError: " + errorThread.size());
-		subTask.getSubTaskInfo().status = ConstantValues.STATUS_ERROR;
-		errorThread.offer(subTask);
-		DBHelper.getInstance().updateSubTask(subTask.getSubTaskInfo(), taskInfo.taskId);
+		Log.d(TAG, "onThreadError: " + downloadingThread.contains(subTask));
+		if (downloadingThread.remove(subTask)) {
+			errorThread.offer(subTask);
+		}
 	}
 
 	@Override
 	public void interrupt() {
 		super.interrupt();
-		Log.d(TAG, "interrupt: ");
-
 	}
 }

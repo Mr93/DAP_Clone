@@ -20,7 +20,7 @@ public class TaskManager extends Thread {
 	BlockingQueue<Task> downloadingTask, pendingTask, errorTask;
 	private static TaskManager instance;
 	private boolean isRunning = false;
-	private int redownloadErrorTime = 1;
+	private int reDownloadErrorTime = 1;
 
 
 	private TaskManager() {
@@ -40,7 +40,6 @@ public class TaskManager extends Thread {
 		getDownloadingQueue();
 		getPendingQueue();
 		getErrorQueue();
-		//updateFromPendingToDownloading();
 	}
 
 	//get queue from DB
@@ -73,32 +72,25 @@ public class TaskManager extends Thread {
 		}
 	}
 
-	private void updateFromPendingToDownloading() {
+	private void updateToDownloadingQueue() {
 		int offset = SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD) -
 				downloadingTask.size();
-		Log.d(TAG, "updateFromPendingToDownloading: " + offset);
-		Log.d(TAG, "updateFromPendingToDownloading: " + SettingUtils.getIntSettings(ConstantValues
-				.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD));
-		Log.d(TAG, "updateFromPendingToDownloading: " + downloadingTask.size());
-		if (pendingTask.isEmpty() && downloadingTask.isEmpty() && redownloadErrorTime > 0 && !errorTask.isEmpty()) {
+		if (pendingTask.isEmpty() && downloadingTask.isEmpty() && reDownloadErrorTime > 0 && !errorTask.isEmpty()) {
 			for (Task task : errorTask) {
-				Log.d(TAG, "updateDownloadingList: " + errorTask.remove(task));
+				errorTask.remove(task);
 				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
 				Task newTask = new Task(task.getTaskInfo(), this);
 				pendingTask.offer(newTask);
 				DBHelper.getInstance().updateTask(task.getTaskInfo());
 			}
-			redownloadErrorTime = redownloadErrorTime - 1;
-		}
-		if (redownloadErrorTime <= 0) {
-			Log.d(TAG, "updateFromPendingToDownloading: error " + errorTask.size());
+			reDownloadErrorTime = reDownloadErrorTime - 1;
+			Log.d(TAG, "updateToDownloadingQueue: " + reDownloadErrorTime);
 		}
 		for (int i = 0; i < offset; i++) {
 			Task task = pendingTask.poll();
 			if (task != null) {
 				task.getTaskInfo().status = ConstantValues.STATUS_DOWNLOADING;
 				downloadingTask.offer(task);
-				Log.d(TAG, "updateFromPendingToDownloading: " + task.getTaskInfo().taskId);
 				DBHelper.getInstance().updateTask(task.getTaskInfo());
 			}
 		}
@@ -112,23 +104,20 @@ public class TaskManager extends Thread {
 
 	@Override
 	public void run() {
-		Log.d(TAG, "run: start task manager");
 		setUpQueues();
 		try {
 			while (isRunning) {
-				updateFromPendingToDownloading();
-				Log.d(TAG, "run taskCompleted: " + downloadingTask.size());
+				updateToDownloadingQueue();
 				for (Task task : downloadingTask) {
-					Log.d(TAG, "run: " + task.getState());
 					if (task.getState() == State.NEW) {
 						task.start();
 					} else if (task.getState() == State.TERMINATED) {
-						taskError(task);
+						//taskError(task);
 					}
 				}
-				if (downloadingTask.size() == 0) {
-					Log.d(TAG, "run: error " + errorTask.size());
+				if (downloadingTask.isEmpty()) {
 					isRunning = false;
+					reDownloadErrorTime = 1;
 					synchronized (NetworkService.monitor) {
 						try {
 							NetworkService.monitor.wait();
@@ -150,7 +139,6 @@ public class TaskManager extends Thread {
 		Task task = new Task(taskInfo, this);
 		if (checkContain(taskInfo, errorTask)) {
 			task = getTaskFromQueue(taskInfo, errorTask);
-			Log.d(TAG, "addTask error: " + task.getTaskInfo().processedSize);
 			errorTask.remove(task);
 			if (downloadingTask.size() >= SettingUtils.getIntSettings(ConstantValues.SETTING_NUMBER_THREAD_DOWNLOAD, ConstantValues.DEFAULT_NUMBER_THREAD_DOWNLOAD)) {
 				task.getTaskInfo().status = ConstantValues.STATUS_PENDING;
@@ -168,9 +156,6 @@ public class TaskManager extends Thread {
 				downloadingTask.offer(task);
 			}
 		}
-		Log.d(TAG, "addTask: " + downloadingTask.size());
-		Log.d(TAG, "addTask: " + pendingTask.size());
-		Log.d(TAG, "addTask: " + errorTask.size());
 	}
 
 	public boolean checkContain(TaskInfo taskInfo, BlockingQueue<Task> tasks) {
@@ -196,16 +181,13 @@ public class TaskManager extends Thread {
 	}
 
 	public synchronized void taskCompleted(Task task) {
-		Log.d(TAG, "taskCompleted: " + downloadingTask.remove(task));
-		Log.d(TAG, "taskCompleted: " + downloadingTask.size());
-		task.getTaskInfo().status = ConstantValues.STATUS_COMPLETED;
-		DBHelper.getInstance().updateTask(task.getTaskInfo());
+		downloadingTask.remove(task);
 		DBHelper.getInstance().deleteSubTaskByTaskId(task.getTaskInfo().taskId);
-		updateFromPendingToDownloading();
+		updateToDownloadingQueue();
 	}
 
 	public synchronized void taskError(Task task) {
-		Log.d(TAG, "taskCompleted: " + downloadingTask.remove(task));
+		downloadingTask.remove(task);
 		errorTask.offer(task);
 	}
 

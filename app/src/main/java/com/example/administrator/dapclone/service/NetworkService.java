@@ -36,7 +36,8 @@ public class NetworkService extends Service {
 				Log.d(TAG, "downloadMultiThread: delete file " + file.delete());
 			}
 			taskManager.addTask(taskInfo);
-			if (taskManager.getState() == Thread.State.WAITING) {
+			Log.d(TAG, "onStartCommand: " + taskManager.getState());
+			if (taskManager.getState() == Thread.State.WAITING || taskManager.getState() == Thread.State.TIMED_WAITING) {
 				taskManager.setRunning(true);
 				synchronized (monitor) {
 					monitor.notify();
