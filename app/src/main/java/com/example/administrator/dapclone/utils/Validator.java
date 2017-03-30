@@ -42,7 +42,7 @@ public class Validator {
 	};
 
 	public static int getDrawableIdByExtension(String url) {
-		String mimeTye = MimeTypeMap.getSingleton().getMimeTypeFromExtension(getExtension(url));
+		String mimeTye = getMimeTyeFromExtension(url);
 		if (mimeTye.contains(VIDEO)) {
 			return R.drawable.ic_video_library_black_36dp;
 		} else if (mimeTye.contains(MUSIC)) {
@@ -52,6 +52,10 @@ public class Validator {
 		} else {
 			return R.drawable.ic_android_black_36dp;
 		}
+	}
+
+	public static String getMimeTyeFromExtension(String url) {
+		return MimeTypeMap.getSingleton().getMimeTypeFromExtension(getExtension(url));
 	}
 
 	public static boolean isValid(String url) throws NetworkException {

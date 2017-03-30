@@ -52,7 +52,11 @@ public class FolderDownloadFragmentModel implements ProvidedModel {
 
 	@Override
 	public void unRegisterBroadCast() {
-		MyApplication.getAppContext().unregisterReceiver(broadcastReceiver);
+		try {
+			MyApplication.getAppContext().unregisterReceiver(broadcastReceiver);
+		} catch (IllegalArgumentException e) {
+			Log.d(TAG, "unRegisterBroadCast: " + e);
+		}
 	}
 
 	@Override

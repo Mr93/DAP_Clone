@@ -2,7 +2,9 @@ package com.example.administrator.dapclone.fragmentfolder.folderdownload;
 
 import android.util.Log;
 
+import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.TaskInfo;
+import com.example.administrator.dapclone.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,5 +100,20 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 	@Override
 	public void unRegisterBroadcast() {
 		providedModel.unRegisterBroadCast();
+	}
+
+	@Override
+	public void showPreviewFile(TaskInfo taskInfo) {
+		if (ConstantValues.STATUS_COMPLETED.equalsIgnoreCase(taskInfo.status)) {
+			providedModel.unRegisterBroadCast();
+			String mimeTye = Validator.getMimeTyeFromExtension(taskInfo.url);
+			if (mimeTye.contains(Validator.VIDEO)) {
+				requiredView.previewVideo(taskInfo);
+			} else if (mimeTye.contains(Validator.MUSIC)) {
+				requiredView.previewMusic(taskInfo);
+			} else {
+				requiredView.previewPicture(taskInfo);
+			}
+		}
 	}
 }

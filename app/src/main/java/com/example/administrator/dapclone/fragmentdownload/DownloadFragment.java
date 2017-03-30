@@ -39,7 +39,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		button = (Button) view.findViewById(R.id.button_download);
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
-		editText.setText("http://f9.stream.nixcdn.com/fdc01155bfd21616ecf24fca1c27ac5f/58dcac52/PreNCT13/BeautyAndTheBeast-ArianaGrandeJohnLegend-4814984.mp4?t=1490857714077");
+		editText.setText("http://www.intrawallpaper.com/static/images/the-dark-angel-hd-wallpaper-hd-1080p_2_WvRULzk.jpg");
 		setupMVP();
 		return view;
 	}

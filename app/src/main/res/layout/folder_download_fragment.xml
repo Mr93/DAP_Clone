@@ -14,5 +14,32 @@
         android:layout_alignParentTop="true"
         android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
 
+    <FrameLayout
+        android:id="@+id/fragment_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></FrameLayout>
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+        <VideoView
+            android:id="@+id/video_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="@android:color/holo_green_dark"
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:id="@+id/image_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:adjustViewBounds="true"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
 </LinearLayout>

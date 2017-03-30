@@ -7,15 +7,20 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.example.administrator.dapclone.fragmentdownload.DownloadFragment;
 import com.example.administrator.dapclone.service.NetworkService;
 import com.example.administrator.dapclone.view.BottomNavigationViewHelper;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
 
@@ -138,5 +143,18 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 	@Override
 	public void onPageScrollStateChanged(int state) {
 
+	}
+
+	@Override
+	public void onBackPressed() {
+		List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+		if (fragmentList != null) {
+			for (Fragment fragment : fragmentList) {
+				if (fragment instanceof DownloadFragment) {
+					Log.d(TAG, "onBackPressed: aaaa");
+				}
+			}
+		}
+		super.onBackPressed();
 	}
 }

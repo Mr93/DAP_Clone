@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,6 +18,8 @@ import com.example.administrator.dapclone.utils.Validator;
 
 import java.util.List;
 
+import static com.example.administrator.dapclone.fragmentfolder.folderdownload.IFolderDownloadFragment.*;
+
 /**
  * Created by Administrator on 03/29/2017.
  */
@@ -25,11 +28,11 @@ public class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapte
 
 	private static final String TAG = DownloadListAdapter.class.getSimpleName();
 	private List<TaskInfo> taskInfoList;
-	private Context context;
+	private ProvidedPresenter providedPresenter;
 
-	public DownloadListAdapter(List<TaskInfo> taskInfoList, Context context) {
+	public DownloadListAdapter(List<TaskInfo> taskInfoList, ProvidedPresenter providedPresenter) {
 		this.taskInfoList = taskInfoList;
-		this.context = context;
+		this.providedPresenter = providedPresenter;
 	}
 
 	@Override
@@ -39,13 +42,19 @@ public class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapte
 	}
 
 	@Override
-	public void onBindViewHolder(MyViewHolder holder, int position) {
-		TaskInfo taskInfo = taskInfoList.get(position);
+	public void onBindViewHolder(MyViewHolder holder, final int position) {
+		final TaskInfo taskInfo = taskInfoList.get(position);
 		holder.title.setText(taskInfo.name);
 		int progress = (int) ((((float) taskInfo.processedSize) * 100) / ((float) taskInfo.size));
 		holder.progressText.setText(String.valueOf(progress) + "%");
 		holder.progressBar.setProgress(progress);
 		holder.avatar.setBackgroundResource(Validator.getDrawableIdByExtension(taskInfo.url));
+		holder.layoutItem.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				providedPresenter.showPreviewFile(taskInfo);
+			}
+		});
 	}
 
 	@Override
@@ -57,9 +66,11 @@ public class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapte
 		public ImageView avatar;
 		public TextView title, progressText;
 		public ProgressBar progressBar;
+		public LinearLayout layoutItem;
 
 		public MyViewHolder(View view) {
 			super(view);
+			this.layoutItem = (LinearLayout) view.findViewById(R.id.layout_item_recycle_view);
 			this.avatar = (ImageView) view.findViewById(R.id.avatar);
 			this.title = (TextView) view.findViewById(R.id.title_text);
 			this.progressText = (TextView) view.findViewById(R.id.progress_text);

@@ -18,6 +18,12 @@ public interface IFolderDownloadFragment {
 		void fetchDataRecycleView();
 
 		void updateDataRecycleView();
+
+		void previewVideo(TaskInfo taskInfo);
+
+		void previewMusic(TaskInfo taskInfo);
+
+		void previewPicture(TaskInfo taskInfo);
 	}
 
 	interface ProvidedPresenter {
@@ -30,6 +36,8 @@ public interface IFolderDownloadFragment {
 		void setModel(ProvidedModel model);
 
 		void unRegisterBroadcast();
+
+		void showPreviewFile(TaskInfo taskInfo);
 	}
 
 	interface RequiredPresenter {
@@ -44,6 +52,7 @@ public interface IFolderDownloadFragment {
 		void getDownloadDataFromDB();
 
 		void unRegisterBroadCast();
+
 		void registerBroadCast();
 	}
 }
