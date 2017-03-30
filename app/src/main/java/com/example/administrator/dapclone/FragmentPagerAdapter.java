@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 import com.example.administrator.dapclone.fragmentdownload.DownloadFragment;
+import com.example.administrator.dapclone.fragmentfolder.FolderFragment;
 
 /**
  * Created by Administrator on 03/21/2017.
@@ -30,6 +31,8 @@ public class FragmentPagerAdapter extends android.support.v4.app.FragmentPagerAd
 			fragment = new FragmentSettings();
 		} else if (position == 0) {
 			fragment = new DownloadFragment();
+		} else if (position == 2) {
+			fragment = new FolderFragment();
 		} else {
 			fragment = new FragmentSettings();
 		}

@@ -1,6 +1,8 @@
 package com.example.administrator.dapclone.fragmentdownload;
 
-import com.example.administrator.dapclone.FileInfo;
+import android.content.Context;
+
+import com.example.administrator.dapclone.TaskInfo;
 
 /**
  * Created by Administrator on 03/21/2017.
@@ -8,7 +10,9 @@ import com.example.administrator.dapclone.FileInfo;
 
 public interface IDownloadFragment {
 	interface RequiredView {
-		void invalidUrl(String message);
+		void errorDownload(String message);
+
+		Context getFragmentContext();
 	}
 
 	interface ProvidedPresenter {
@@ -20,10 +24,10 @@ public interface IDownloadFragment {
 	}
 
 	interface RequiredPresenter {
-
+		Context getContext();
 	}
 
 	interface ProvidedModel {
-		void download(FileInfo fileInfo);
+		void download(TaskInfo taskInfo);
 	}
 }
