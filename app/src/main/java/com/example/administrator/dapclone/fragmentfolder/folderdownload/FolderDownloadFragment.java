@@ -1,12 +1,11 @@
 package com.example.administrator.dapclone.fragmentfolder.folderdownload;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import com.example.administrator.dapclone.ConstantValues;
+import com.example.administrator.dapclone.PreviewActivity;
 import com.example.administrator.dapclone.R;
 import com.example.administrator.dapclone.TaskInfo;
 
@@ -35,9 +36,6 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	private RecyclerView recyclerView;
 	private DownloadListAdapter downloadListAdapter;
 	private ProvidedPresenter providedPresenter;
-	private VideoView videoPreview;
-	private MediaController mediaController;
-	private ImageView imagePreview;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,10 +47,6 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.folder_download_fragment, container, false);
-		videoPreview = (VideoView) view.findViewById(R.id.video_preview);
-		mediaController = new MediaController(getActivity());
-		videoPreview.setMediaController(mediaController);
-		imagePreview = (ImageView) view.findViewById(R.id.image_preview);
 		initRecyclerView(view);
 		createTouchCallBack();
 		return view;
@@ -114,6 +108,7 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 			downloadListAdapter = new DownloadListAdapter(providedPresenter.getTaskInfoList(), providedPresenter);
 			recyclerView.setAdapter(downloadListAdapter);
 			downloadListAdapter.notifyDataSetChanged();
+			providedPresenter.registerBroadCast();
 		}
 	}
 
@@ -125,35 +120,10 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	}
 
 	@Override
-	public void previewVideo(TaskInfo taskInfo) {
-
-		recyclerView.setVisibility(View.GONE);
-		videoPreview.setVisibility(View.VISIBLE);
-		String path = taskInfo.path;
-		videoPreview.setVideoURI(Uri.parse(path));
-		videoPreview.setBackgroundDrawable(mediaController.getBackground());
-		videoPreview.start();
+	public void preViewMedia(TaskInfo taskInfo, String type) {
+		Intent intent = new Intent(getActivity(), PreviewActivity.class);
+		intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
+		intent.putExtra(ConstantValues.CONTENT_TYPE, type);
+		startActivity(intent);
 	}
-
-	@Override
-	public void previewMusic(TaskInfo taskInfo) {
-		recyclerView.setVisibility(View.GONE);
-		videoPreview.setVisibility(View.VISIBLE);
-		String path = taskInfo.path;
-		videoPreview.setVideoURI(Uri.parse(path));
-		videoPreview.start();
-	}
-
-	@Override
-	public void previewPicture(TaskInfo taskInfo) {
-		recyclerView.setVisibility(View.GONE);
-		imagePreview.setVisibility(View.VISIBLE);
-		File imgFile = new File(taskInfo.path);
-		if (imgFile.exists()) {
-			Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-			imagePreview.setImageBitmap(bitmap);
-		}
-	}
-
-
 }

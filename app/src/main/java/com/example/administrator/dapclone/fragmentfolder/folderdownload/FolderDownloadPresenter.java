@@ -1,6 +1,5 @@
 package com.example.administrator.dapclone.fragmentfolder.folderdownload;
 
-import android.util.Log;
 
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.TaskInfo;
@@ -31,7 +30,6 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 
 	@Override
 	public void getDownloadDataFromDB() {
-		providedModel.registerBroadCast();
 		providedModel.getDownloadDataFromDB();
 	}
 
@@ -65,14 +63,10 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 				requiredView.updateDataRecycleView();
 			}
 		}
-		Log.d(TAG, "createNewTask: " + taskInfo.taskId);
-		Log.d(TAG, "createNewTask: " + this.taskInfoList.size());
 	}
 
 	@Override
 	public void updateATask(TaskInfo taskInfo) {
-		Log.d(TAG, "updateATask: " + taskInfo.processedSize);
-		Log.d(TAG, "updateATask: " + this.taskInfoList.size());
 		if (taskInfo != null) {
 			for (TaskInfo temp : taskInfoList) {
 				if (temp.taskId == taskInfo.taskId && temp.name.equalsIgnoreCase(taskInfo.name) &&
@@ -103,16 +97,20 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 	}
 
 	@Override
+	public void registerBroadCast() {
+		providedModel.registerBroadCast();
+	}
+
+	@Override
 	public void showPreviewFile(TaskInfo taskInfo) {
 		if (ConstantValues.STATUS_COMPLETED.equalsIgnoreCase(taskInfo.status)) {
-			providedModel.unRegisterBroadCast();
 			String mimeTye = Validator.getMimeTyeFromExtension(taskInfo.url);
 			if (mimeTye.contains(Validator.VIDEO)) {
-				requiredView.previewVideo(taskInfo);
+				requiredView.preViewMedia(taskInfo, Validator.VIDEO);
 			} else if (mimeTye.contains(Validator.MUSIC)) {
-				requiredView.previewMusic(taskInfo);
+				requiredView.preViewMedia(taskInfo, Validator.MUSIC);
 			} else {
-				requiredView.previewPicture(taskInfo);
+				requiredView.preViewMedia(taskInfo, Validator.IMAGE);
 			}
 		}
 	}

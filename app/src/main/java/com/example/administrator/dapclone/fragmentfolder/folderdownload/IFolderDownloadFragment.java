@@ -19,11 +19,7 @@ public interface IFolderDownloadFragment {
 
 		void updateDataRecycleView();
 
-		void previewVideo(TaskInfo taskInfo);
-
-		void previewMusic(TaskInfo taskInfo);
-
-		void previewPicture(TaskInfo taskInfo);
+		void preViewMedia(TaskInfo taskInfo, String type);
 	}
 
 	interface ProvidedPresenter {
@@ -36,6 +32,8 @@ public interface IFolderDownloadFragment {
 		void setModel(ProvidedModel model);
 
 		void unRegisterBroadcast();
+
+		void registerBroadCast();
 
 		void showPreviewFile(TaskInfo taskInfo);
 	}

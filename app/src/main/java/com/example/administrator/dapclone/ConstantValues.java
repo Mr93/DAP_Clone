@@ -1,5 +1,7 @@
 package com.example.administrator.dapclone;
 
+import android.os.Environment;
+
 /**
  * Created by Administrator on 03/20/2017.
  */
@@ -16,5 +18,11 @@ public class ConstantValues {
 	public final static String ACTION_UPDATE_TASK = "com.example.administrator.dapclone.updatetask";
 	public final static String ACTION_ERROR_TASK = "com.example.administrator.dapclone.errortask";
 	public final static String ACTION_COMPLETE_TASK = "com.example.administrator.dapclone.completetask";
+	public final static String CONTENT_TYPE = "content_type";
+	public final static String PATH_ARGUMENT = "path_argument";
+	public final static String DEFAULT_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+
+
+
 
 }
