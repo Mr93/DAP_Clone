@@ -52,7 +52,9 @@ public class DownloadListAdapter extends RecyclerView.Adapter<DownloadListAdapte
 		holder.layoutItem.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Log.d(TAG, "onClick: " + taskInfo.processedSize + "/" + taskInfo.size);
 				if (taskInfo.processedSize == taskInfo.size) {
+					Log.d(TAG, "onClick: ");
 					providedPresenter.showPreviewFile(taskInfo);
 				}
 			}

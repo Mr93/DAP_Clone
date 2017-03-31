@@ -12,19 +12,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.administrator.dapclone.MyApplication;
 import com.example.administrator.dapclone.R;
+
+import javax.inject.Inject;
+
+import static com.example.administrator.dapclone.fragmentdownload.IDownloadFragment.*;
 
 /**
  * Created by Administrator on 03/21/2017.
  */
 
-public class DownloadFragment extends Fragment implements View.OnClickListener, IDownloadFragment.RequiredView {
+public class DownloadFragment extends Fragment implements View.OnClickListener, RequiredView {
 
 	private static final String TAG = DownloadFragment.class.getSimpleName();
 	private EditText editText;
 	private Button button;
 	private TextView errorTextView;
-	private IDownloadFragment.ProvidedPresenter providedPresenter;
+	@Inject
+	ProvidedPresenter providedPresenter;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,7 +46,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 		errorTextView = (TextView) view.findViewById(R.id.error_text_view);
 		button.setOnClickListener(this);
 		editText.setText("http://www.intrawallpaper.com/static/images/the-dark-angel-hd-wallpaper-hd-1080p_2_WvRULzk.jpg");
-		setupMVP();
+		((MyApplication) getActivity().getApplication()).getNetComponent().inject(this);
 		return view;
 	}
 
@@ -48,13 +54,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 	@Override
 	public void onStart() {
 		super.onStart();
-	}
-
-	private void setupMVP() {
-		DownloadPresenter presenter = new DownloadPresenter(this);
-		DownloadModel model = new DownloadModel(presenter);
-		presenter.setModel(model);
-		providedPresenter = presenter;
+		providedPresenter.setView(this);
 	}
 
 	@Override
@@ -72,7 +72,6 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 
 	@Override
 	public void errorDownload(String message) {
-		Log.d(TAG, "errorDownload: ");
 		errorTextView.setText(message);
 		errorTextView.setVisibility(View.VISIBLE);
 	}
