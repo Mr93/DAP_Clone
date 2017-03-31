@@ -19,8 +19,8 @@ public class DownloadPresenter implements IDownloadFragment.ProvidedPresenter, I
 	private IDownloadFragment.RequiredView requiredView;
 	private IDownloadFragment.ProvidedModel providedModel;
 
-	public DownloadPresenter(IDownloadFragment.RequiredView requiredView) {
-		this.requiredView = requiredView;
+	public DownloadPresenter() {
+
 	}
 
 	@Override

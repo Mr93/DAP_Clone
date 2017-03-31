@@ -19,11 +19,14 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import com.example.administrator.dapclone.ConstantValues;
+import com.example.administrator.dapclone.MyApplication;
 import com.example.administrator.dapclone.PreviewActivity;
 import com.example.administrator.dapclone.R;
 import com.example.administrator.dapclone.TaskInfo;
 
 import java.io.File;
+
+import javax.inject.Inject;
 
 import static com.example.administrator.dapclone.fragmentfolder.folderdownload.IFolderDownloadFragment.*;
 
@@ -35,12 +38,13 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	private static final String TAG = FolderDownloadFragment.class.getSimpleName();
 	private RecyclerView recyclerView;
 	private DownloadListAdapter downloadListAdapter;
-	private ProvidedPresenter providedPresenter;
+	@Inject
+	ProvidedPresenter providedPresenter;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		((MyApplication) getActivity().getApplication()).getNetComponent().inject(this);
 	}
 
 	@Nullable
@@ -85,15 +89,8 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 	@Override
 	public void onStart() {
 		super.onStart();
-		setUpMVP();
+		providedPresenter.setView(this);
 		providedPresenter.getDownloadDataFromDB();
-	}
-
-	private void setUpMVP() {
-		FolderDownloadPresenter presenter = new FolderDownloadPresenter(this);
-		ProvidedModel model = new FolderDownloadFragmentModel(presenter);
-		presenter.setModel(model);
-		providedPresenter = presenter;
 	}
 
 	@Override
@@ -121,6 +118,7 @@ public class FolderDownloadFragment extends Fragment implements RequiredView {
 
 	@Override
 	public void preViewMedia(TaskInfo taskInfo, String type) {
+		Log.d(TAG, "preViewMedia: " + type);
 		Intent intent = new Intent(getActivity(), PreviewActivity.class);
 		intent.putExtra(ConstantValues.FILE_INFO, taskInfo);
 		intent.putExtra(ConstantValues.CONTENT_TYPE, type);

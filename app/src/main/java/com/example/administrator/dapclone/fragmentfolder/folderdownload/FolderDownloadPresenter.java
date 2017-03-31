@@ -23,8 +23,7 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 	private List<TaskInfo> taskInfoList;
 
 
-	public FolderDownloadPresenter(RequiredView requiredView) {
-		this.requiredView = requiredView;
+	public FolderDownloadPresenter() {
 		taskInfoList = new ArrayList<>();
 	}
 
