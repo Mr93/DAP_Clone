@@ -82,6 +82,7 @@ public class FolderDownloadFragmentModel implements ProvidedModel {
 						requiredPresenter.updateATask(taskInfo);
 					} else if (ConstantValues.ACTION_COMPLETE_TASK.equalsIgnoreCase(intent.getAction())) {
 						Log.d(TAG, "onReceive: done");
+						requiredPresenter.updateATask(taskInfo);
 						Toast.makeText(context, taskInfo.name + " download completed", Toast.LENGTH_SHORT).show();
 					} else {
 						Toast.makeText(context, taskInfo.name + " download error", Toast.LENGTH_SHORT).show();

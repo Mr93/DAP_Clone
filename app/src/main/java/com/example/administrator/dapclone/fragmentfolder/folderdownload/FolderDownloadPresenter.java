@@ -1,6 +1,8 @@
 package com.example.administrator.dapclone.fragmentfolder.folderdownload;
 
 
+import android.util.Log;
+
 import com.example.administrator.dapclone.ConstantValues;
 import com.example.administrator.dapclone.TaskInfo;
 import com.example.administrator.dapclone.utils.Validator;
@@ -102,15 +104,13 @@ public class FolderDownloadPresenter implements ProvidedPresenter, RequiredPrese
 
 	@Override
 	public void showPreviewFile(TaskInfo taskInfo) {
-		if (ConstantValues.STATUS_COMPLETED.equalsIgnoreCase(taskInfo.status)) {
-			String mimeTye = Validator.getMimeTyeFromExtension(taskInfo.url);
-			if (mimeTye.contains(Validator.VIDEO)) {
-				requiredView.preViewMedia(taskInfo, Validator.VIDEO);
-			} else if (mimeTye.contains(Validator.MUSIC)) {
-				requiredView.preViewMedia(taskInfo, Validator.MUSIC);
-			} else {
-				requiredView.preViewMedia(taskInfo, Validator.IMAGE);
-			}
+		String mimeTye = Validator.getMimeTyeFromExtension(taskInfo.url);
+		if (mimeTye.contains(Validator.VIDEO)) {
+			requiredView.preViewMedia(taskInfo, Validator.VIDEO);
+		} else if (mimeTye.contains(Validator.MUSIC)) {
+			requiredView.preViewMedia(taskInfo, Validator.MUSIC);
+		} else {
+			requiredView.preViewMedia(taskInfo, Validator.IMAGE);
 		}
 	}
 }

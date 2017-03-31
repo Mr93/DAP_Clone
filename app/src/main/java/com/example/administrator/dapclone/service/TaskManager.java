@@ -192,6 +192,7 @@ public class TaskManager extends Thread {
 		downloadingTask.remove(task);
 		DBHelper.getInstance().deleteSubTaskByTaskId(task.getTaskInfo().taskId);
 		updateToDownloadingQueue();
+		Log.d(TAG, "taskCompleted: " + task.getTaskInfo().status);
 		updateUI(task, ConstantValues.ACTION_COMPLETE_TASK);
 	}
 
