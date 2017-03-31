@@ -63,7 +63,7 @@ public class DownloadFragment extends Fragment implements View.OnClickListener, 
 			case R.id.button_download:
 				errorTextView.setVisibility(View.GONE);
 				providedPresenter.download(editText.getText().toString().trim());
-				editText.setText("http://f9.stream.nixcdn.com/31c2fa3b9f72d0dcdc9c0a57f5ca0647/58dc57f9/Warner_Audio12/HoldMyHand-JessGlynne-4845905.mp3?t=1490835658947");
+				editText.setText("http://s72.stream.nixcdn.com/d0950d4a64ca0986958fd316301666eb/58de04be/PreNCT12/MillionReasons-LadyGaga-4707870.mp4?t=1490946859464");
 				break;
 			default:
 				break;
